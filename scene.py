@@ -1,30 +1,50 @@
 from bpy import context, ops, data
 from math import pi, sin, cos
-import os
+import os, time
 
 CAMERAS = 8
 DISTANCE: float = 8
 FOCAL_LENGTH: float = 45
 
+RESOLUTION = 100
+
 PATH = '/Users/giovannitommasi/Repositories/blender-scene'
+
+# Rendering options
+context.scene.render.use_overwrite = True
+context.scene.render.use_placeholder = True
+context.scene.render.use_file_extension = True
+context.scene.render.resolution_percentage = RESOLUTION
 
 # Clear data from previous scenes
 if data:
     for item in data.objects:
-        item.user_clear()
         data.objects.remove(item)
 
     for item in data.meshes:
-        item.user_clear()
         data.meshes.remove(item)
 
     for material in data.materials:
-        material.user_clear()
         data.materials.remove(material)
 
     for texture in data.textures:
-        texture.user_clear()
         data.textures.remove(texture)
+
+ops.screen.frame_jump(end=False)
+
+# switch on nodes
+context.scene.use_nodes = True
+tree = context.scene.node_tree
+links = tree.links
+
+# clear default nodes
+for n in tree.nodes:
+    tree.nodes.remove(n)
+
+# Rendering Node configuration
+render_node= tree.nodes.new('CompositorNodeRLayers')
+composite_node = tree.nodes.new('CompositorNodeComposite')
+links.new(render_node.outputs['Image'], composite_node.inputs['Image'])
 
 # Setup Lights:
 ops.object.light_add(type='SUN', radius=1, location=(DISTANCE/4, DISTANCE/8, DISTANCE/2))
@@ -36,33 +56,52 @@ ops.mesh.primitive_plane_add(size=DISTANCE, calc_uvs=True, enter_editmode=False,
 name = 'Fox'
 path = os.path.join(PATH, 'models', name + '.fbx')
 ops.import_scene.fbx(filepath=path)
-model = context.object
+
+model = context.active_object
 model.name = name
 
-# Setup Cameras
-
+# Setup Cameras and output Renderings
 for i in range(CAMERAS):
 
     angle = i * pi / 4
     x = DISTANCE * cos(angle)
     y = DISTANCE * sin(angle)
 
+    # Adding Camera
     ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, 1.0), rotation=(0.0, 0.0, 0.0))
-    camera = context.object
+    camera = context.active_object
     camera.name = 'camera' + str(i)
     camera.data.lens = FOCAL_LENGTH
     camera.data.shift_y = 0.2
 
+    # Camera constraint to look at model
     ops.object.constraint_add(type='TRACK_TO')
-
     tracking = camera.constraints[0]
     tracking.target = data.objects[model.name]
     tracking.track_axis = 'TRACK_NEGATIVE_Z'
     tracking.up_axis = 'UP_Y'
-
-    # Setup output path for rendering
-    context.scene.render.filepath = os.path.join(PATH, 'rendering', camera.name, str(i))
-
+'''
+    # Rendering
+    context.scene.render.filepath = os.path.join(PATH, 'rendering', camera.name, 'render_')
     context.scene.camera = camera
-    ops.render.render(animation=False, write_still=True)
 
+    ops.render.render(animation=True, write_still=True)
+'''
+
+# Depth Node configuration
+normalize_node = tree.nodes.new('CompositorNodeNormalize')
+mix_node = tree.nodes.new('CompositorNodeMixRGB')
+
+links.new(render_node.outputs['Depth'], normalize_node.inputs['Value'])
+links.new(normalize_node.outputs['Value'], mix_node.inputs['Image'])
+links.new(render_node.outputs['Image'], mix_node.inputs['Fac'])
+links.new(mix_node.outputs['Image'], composite_node.inputs['Image'])
+
+for i in range(CAMERAS):
+
+    # Setup Rendering
+    camera = data.objects['camera' + str(i)]
+    context.scene.render.filepath = os.path.join(PATH, 'rendering', camera.name, 'depth_')
+    context.scene.camera = camera
+
+    ops.render.render(animation=True, write_still=True)
