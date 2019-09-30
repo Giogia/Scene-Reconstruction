@@ -4,12 +4,28 @@ import os
 
 # CONFIGURATION PARAMETERS
 
-# PATH = '/Users/giovannitommasi/Repositories/blender-scene'
-PATH = './'
+PATH = '/Users/giovannitommasi/Repositories/blender-scene'
+#PATH = './'
 CAMERAS = 8
 DISTANCE: float = 8
 FOCAL_LENGTH: float = 45
 RESOLUTION = 100
+
+
+def main():
+
+    for file in os.listdir(os.path.join(PATH, 'models')):
+        if file.endswith('.fbx'):
+            name = os.path.splitext(file)[0]
+
+            clear_scene()
+            add_lights()
+            add_plane()
+            model = add_model(name)
+
+            setup_cameras(model)
+            render(model)
+            render(model, 'depth')
 
 
 def clear_scene():
@@ -100,7 +116,7 @@ def node_setup(mode):
         raise Exception('Invalid Node Setup')
 
 
-def render(mode='render'):
+def render(model, mode='render'):
 
     # Rendering options
     context.scene.render.use_overwrite = True
@@ -112,21 +128,12 @@ def render(mode='render'):
 
     for i in range(CAMERAS):
         camera = data.objects['camera' + str(i)]
-        context.scene.render.filepath = os.path.join(PATH, 'rendering', camera.name, mode + '_')
+        context.scene.render.filepath = os.path.join(PATH, 'rendering', model.name, camera.name, mode + '_')
         context.scene.camera = camera
 
         ops.render.render(animation=False, write_still=True)
 
-    print('Completed Succesfully')
+    print('Completed Successfully')
 
 
-clear_scene()
-add_lights()
-add_plane()
-name = 'Fox'
-model = add_model(name)
-setup_cameras(model)
-render()
-render('depth')
-
-
+main()
