@@ -1,5 +1,5 @@
 from bpy import context, data, ops
-from math import pi, sin, cos
+from math import pi, sin, cos, radians
 import os
 
 # CONFIGURATION PARAMETERS
@@ -8,25 +8,28 @@ import os
 PATH = '/Users/giovannitommasi/Repositories/blender-scene'
 # PATH = './'
 
+# CAMERAS SETTINGS
 CAMERAS = 8
-DISTANCE: float = 8
-FOCAL_LENGTH: float = 50
-RESOLUTION = 100
+DISTANCE: float = 10
+FOV: float = 65
+
+# RENDERING SETTINGS
+OUTPUT_RESOLUTION = 100
+START_FRAME = 0
+END_FRAME = 10
 
 
 def main():
 
     for file in os.listdir(os.path.join(PATH, 'models')):
+
         if file.endswith('.fbx'):
             name = os.path.splitext(file)[0]
-            #name = 'cube';
+            print('RENDERING THE FOLLOWING OBJECT:', name)
 
             clear_scene()
             add_lights()
             add_plane()
-
-            #ops.mesh.primitive_cube_add(size=2, enter_editmode=False, location=(0, 0, 0))
-            #model = context.active_object
 
             model = add_model(name)
 
@@ -57,7 +60,7 @@ def add_lights():
 
 
 def add_plane():
-    ops.mesh.primitive_plane_add(size=DISTANCE, calc_uvs=True, enter_editmode=False, location=(0, 0, 0))
+    ops.mesh.primitive_circle_add(vertices=128, radius=DISTANCE, fill_type='NGON', location=(0, 0, 0))
 
 
 def add_model(name):
@@ -81,7 +84,7 @@ def setup_cameras(model):
         ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.dimensions[2]/2), rotation=(0.0, 0.0, 0.0))
         camera = context.active_object
         camera.name = 'camera' + str(i)
-        camera.data.lens = FOCAL_LENGTH
+        camera.data.angle = radians(FOV)
 
         # Camera constraint to look at model
         ops.object.constraint_add(type='TRACK_TO')
@@ -116,10 +119,10 @@ def render(model):
     context.scene.render.use_overwrite = True
     context.scene.render.use_placeholder = True
     context.scene.render.use_file_extension = True
-    context.scene.render.resolution_percentage = RESOLUTION
+    context.scene.render.resolution_percentage = OUTPUT_RESOLUTION
 
-    context.scene.frame_start = 0
-    context.scene.frame_end = 60
+    context.scene.frame_start = START_FRAME
+    context.scene.frame_end = END_FRAME - 1
 
     context.scene.render.image_settings.file_format = 'OPEN_EXR'
     context.scene.render.image_settings.use_zbuffer = True
@@ -132,7 +135,7 @@ def render(model):
         context.scene.render.filepath = os.path.join(PATH, 'rendering', model.name, camera.name, 'render' + '_')
         context.scene.camera = camera
 
-        ops.render.render(animation=False, write_still=True)
+        ops.render.render(animation=True, write_still=True)
 
     print('Completed Successfully')
 
