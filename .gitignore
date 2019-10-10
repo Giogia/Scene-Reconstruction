@@ -58,3 +58,6 @@ tmtagsHistory
 # Blender Projects
 ######################
 *.blend
+
+# virtual envs
+venv

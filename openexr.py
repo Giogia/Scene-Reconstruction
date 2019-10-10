@@ -2,7 +2,7 @@ from OpenEXR import InputFile
 from Imath import PixelType
 import numpy as np
 
-file = InputFile('rendering/Cube/camera0/render_.exr')
+file = InputFile('rendering/Fox/camera0/render_.exr')
 
 window = file.header()['dataWindow']
 size = (window.max.y - window.min.y + 1, window.max.x - window.min.x + 1)

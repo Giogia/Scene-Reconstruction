@@ -5,36 +5,39 @@ import os
 # CONFIGURATION PARAMETERS
 
 # TODO set relative path
-PATH = '/Users/giovannitommasi/Repositories/blender-scene'
+PATH = '/Users/giovanni/Developer/blender-scene'
 # PATH = './'
 
 # CAMERAS SETTINGS
 CAMERAS = 8
-DISTANCE: float = 10
+DISTANCE: float = 5
 FOV: float = 65
 
 # RENDERING SETTINGS
-OUTPUT_RESOLUTION = 100
+OUTPUT_RESOLUTION = 10
 START_FRAME = 0
-END_FRAME = 10
+END_FRAME = 250
 
 
 def main():
 
-    for file in os.listdir(os.path.join(PATH, 'models')):
+    for directory in os.listdir(os.path.join(PATH, 'models')):
+        if os.path.isdir(os.path.join(PATH, 'models', directory)):
 
-        if file.endswith('.fbx'):
-            name = os.path.splitext(file)[0]
-            print('RENDERING THE FOLLOWING OBJECT:', name)
+            for file in os.listdir(os.path.join(PATH, 'models', directory)):
+                if file.endswith('.fbx'):
 
-            clear_scene()
-            add_lights()
-            add_plane()
+                    name = os.path.splitext(file)[0]
+                    print('RENDERING THE FOLLOWING OBJECT:', name)
 
-            model = add_model(name)
+                    clear_scene()
+                    add_lights()
+                    add_plane()
 
-            setup_cameras(model)
-            render(model)
+                    model = add_model(name)
+
+                    setup_cameras(model)
+                    render(model)
 
 
 def clear_scene():
@@ -64,10 +67,11 @@ def add_plane():
 
 
 def add_model(name):
-    path = os.path.join(PATH, 'models', name + '.fbx')
+    path = os.path.join(PATH, 'models', name, name + '.fbx')
     ops.import_scene.fbx(filepath=path)
     model = context.active_object
     model.name = name
+    model.show_bounds
     ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
 
     return model
@@ -81,7 +85,8 @@ def setup_cameras(model):
         y = DISTANCE * sin(angle)
 
         # Adding Camera
-        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.dimensions[2]/2), rotation=(0.0, 0.0, 0.0))
+        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.location[2]), rotation=(0.0, 0.0, 0.0))
+
         camera = context.active_object
         camera.name = 'camera' + str(i)
         camera.data.angle = radians(FOV)
@@ -135,7 +140,7 @@ def render(model):
         context.scene.render.filepath = os.path.join(PATH, 'rendering', model.name, camera.name, 'render' + '_')
         context.scene.camera = camera
 
-        ops.render.render(animation=True, write_still=True)
+        ops.render.render(animation=False, write_still=True)
 
     print('Completed Successfully')
 
