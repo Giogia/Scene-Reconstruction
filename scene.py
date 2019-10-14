@@ -1,6 +1,6 @@
+import os, csv
+from math import pi, sin, cos, radians, degrees
 from bpy import context, data, ops
-from math import pi, sin, cos, radians
-import os
 
 # CONFIGURATION PARAMETERS
 
@@ -20,15 +20,13 @@ END_FRAME = 250
 
 
 def main():
-
     for directory in os.listdir(os.path.join(PATH, 'models')):
         if os.path.isdir(os.path.join(PATH, 'models', directory)):
 
             for file in os.listdir(os.path.join(PATH, 'models', directory)):
                 if file.endswith('.fbx'):
-
                     name = os.path.splitext(file)[0]
-                    print('RENDERING THE FOLLOWING OBJECT:', name)
+                    print('\n\n\nRendering the following model:', name)
 
                     clear_scene()
                     add_lights()
@@ -37,7 +35,8 @@ def main():
                     model = add_model(name)
 
                     setup_cameras(model)
-                    render(model)
+                    save_cameras(model)
+                    # render(model)
 
 
 def clear_scene():
@@ -59,7 +58,7 @@ def clear_scene():
 
 
 def add_lights():
-    ops.object.light_add(type='SUN', radius=1, location=(DISTANCE/4, DISTANCE/8, DISTANCE/2))
+    ops.object.light_add(type='SUN', radius=1, location=(DISTANCE / 4, DISTANCE / 8, DISTANCE / 2))
 
 
 def add_plane():
@@ -78,29 +77,30 @@ def add_model(name):
 
 
 def setup_cameras(model):
-
     for i in range(CAMERAS):
-        angle = i * pi / 4
+        angle = i * 2 * pi / CAMERAS
         x = DISTANCE * cos(angle)
         y = DISTANCE * sin(angle)
 
         # Adding Camera
-        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.location[2]), rotation=(0.0, 0.0, 0.0))
+        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.location[2]),
+                              rotation=(0.0, 0.0, 0.0))
 
         camera = context.active_object
         camera.name = 'camera' + str(i)
         camera.data.angle = radians(FOV)
 
         # Camera constraint to look at model
-        ops.object.constraint_add(type='TRACK_TO')
+        ops.object.constraint_add(type='DAMPED_TRACK')
         tracking = camera.constraints[0]
         tracking.target = data.objects[model.name]
         tracking.track_axis = 'TRACK_NEGATIVE_Z'
-        tracking.up_axis = 'UP_Y'
+        # tracking.up_axis = 'UP_Y'
+
+        ops.transform.transform(mode='ALIGN')
 
 
 def node_setup():
-
     # switch on nodes
     context.scene.use_nodes = True
     tree = context.scene.node_tree
@@ -119,7 +119,6 @@ def node_setup():
 
 
 def render(model):
-
     # Rendering options
     context.scene.render.use_overwrite = True
     context.scene.render.use_placeholder = True
@@ -139,10 +138,25 @@ def render(model):
         camera = data.objects['camera' + str(i)]
         context.scene.render.filepath = os.path.join(PATH, 'rendering', model.name, camera.name, 'render' + '_')
         context.scene.camera = camera
-
         ops.render.render(animation=False, write_still=True)
 
-    print('Completed Successfully')
+    print('Rendering completed Successfully')
+
+
+def save_cameras(model):
+    file = os.path.join(PATH, 'rendering', model.name, 'cameras.csv')
+    writer = csv.writer(open(file, 'w'))
+
+    header = ['Name', 'Position', 'Quaternion', 'Fov']
+    writer.writerow(header)
+
+    for i in range(CAMERAS):
+        camera = data.objects['camera' + str(i)]
+        position = [coordinate for coordinate in camera.location]
+        rotation = [degrees(direction) for direction in camera.rotation_quaternion]
+        writer.writerow([camera.name, position, rotation, FOV])
+
+    print('File written Successfully')
 
 
 main()

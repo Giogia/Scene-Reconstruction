@@ -61,3 +61,6 @@ tmtagsHistory
 
 # virtual envs
 venv
+
+# additional files
+*.csv
