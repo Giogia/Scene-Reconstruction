@@ -1,5 +1,7 @@
 import os, csv
-from math import pi, sin, cos, radians, degrees
+from math import pi, sin, cos, radians
+from mathutils import Vector, Quaternion
+from ast import literal_eval
 from bpy import context, data, ops
 
 # CONFIGURATION PARAMETERS
@@ -54,6 +56,7 @@ def clear_scene():
         for texture in data.textures:
             data.textures.remove(texture)
 
+    # Rewind Animation
     ops.screen.frame_jump(end=False)
 
 
@@ -70,7 +73,6 @@ def add_model(name):
     ops.import_scene.fbx(filepath=path)
     model = context.active_object
     model.name = name
-    model.show_bounds
     ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
 
     return model
@@ -81,23 +83,19 @@ def setup_cameras(model):
         angle = i * 2 * pi / CAMERAS
         x = DISTANCE * cos(angle)
         y = DISTANCE * sin(angle)
+        z = model.location[2]  # height of center of the model
 
         # Adding Camera
-        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, model.location[2]),
-                              rotation=(0.0, 0.0, 0.0))
+        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, z))
 
         camera = context.active_object
         camera.name = 'camera' + str(i)
         camera.data.angle = radians(FOV)
 
-        # Camera constraint to look at model
-        ops.object.constraint_add(type='DAMPED_TRACK')
-        tracking = camera.constraints[0]
-        tracking.target = data.objects[model.name]
-        tracking.track_axis = 'TRACK_NEGATIVE_Z'
-        # tracking.up_axis = 'UP_Y'
-
-        ops.transform.transform(mode='ALIGN')
+        # Make camera point at the center of the model
+        camera.rotation_mode = 'QUATERNION'
+        looking_direction = Vector(camera.location) - Vector(model.location)
+        camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
 
 
 def node_setup():
@@ -136,7 +134,7 @@ def render(model):
 
     for i in range(CAMERAS):
         camera = data.objects['camera' + str(i)]
-        context.scene.render.filepath = os.path.join(PATH, 'rendering', model.name, camera.name, 'render' + '_')
+        context.scene.render.filepath = os.path.join(PATH, 'test', model.name, camera.name, 'render' + '_')
         context.scene.camera = camera
         ops.render.render(animation=False, write_still=True)
 
@@ -153,7 +151,7 @@ def save_cameras(model):
     for i in range(CAMERAS):
         camera = data.objects['camera' + str(i)]
         position = [coordinate for coordinate in camera.location]
-        rotation = [degrees(direction) for direction in camera.rotation_quaternion]
+        rotation = [direction for direction in camera.rotation_quaternion]
         writer.writerow([camera.name, position, rotation, FOV])
 
     print('File written Successfully')
