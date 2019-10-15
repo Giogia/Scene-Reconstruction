@@ -22,6 +22,8 @@ END_FRAME = 250
 
 
 def main():
+
+    # Explore directory and run for every model in models
     for directory in os.listdir(os.path.join(PATH, 'models')):
         if os.path.isdir(os.path.join(PATH, 'models', directory)):
 
@@ -42,6 +44,7 @@ def main():
 
 
 def clear_scene():
+
     # Clear data from previous scenes
     if data:
         for item in data.objects:
@@ -69,6 +72,7 @@ def add_plane():
 
 
 def add_model(name):
+
     path = os.path.join(PATH, 'models', name, name + '.fbx')
     ops.import_scene.fbx(filepath=path)
     model = context.active_object
@@ -79,6 +83,7 @@ def add_model(name):
 
 
 def setup_cameras(model):
+
     for i in range(CAMERAS):
         angle = i * 2 * pi / CAMERAS
         x = DISTANCE * cos(angle)
@@ -99,6 +104,7 @@ def setup_cameras(model):
 
 
 def node_setup():
+
     # switch on nodes
     context.scene.use_nodes = True
     tree = context.scene.node_tree
@@ -117,6 +123,9 @@ def node_setup():
 
 
 def render(model):
+
+    node_setup()
+
     # Rendering options
     context.scene.render.use_overwrite = True
     context.scene.render.use_placeholder = True
@@ -130,8 +139,6 @@ def render(model):
     context.scene.render.image_settings.use_zbuffer = True
     context.scene.render.image_settings.use_preview = False
 
-    node_setup()
-
     for i in range(CAMERAS):
         camera = data.objects['camera' + str(i)]
         context.scene.render.filepath = os.path.join(PATH, 'test', model.name, camera.name, 'render' + '_')
@@ -142,10 +149,11 @@ def render(model):
 
 
 def save_cameras(model):
+
     file = os.path.join(PATH, 'rendering', model.name, 'cameras.csv')
     writer = csv.writer(open(file, 'w'))
 
-    header = ['Name', 'Position', 'Quaternion', 'Fov']
+    header = ['Name', 'Location', 'Quaternion', 'Fov']
     writer.writerow(header)
 
     for i in range(CAMERAS):
