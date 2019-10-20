@@ -55,6 +55,10 @@ tmtagsHistory
 *.mtl
 *.fbx
 
+# Point Clouds
+######################
+*.ply
+
 # Blender Projects
 ######################
 *.blend

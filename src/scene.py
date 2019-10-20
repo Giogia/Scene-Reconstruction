@@ -43,6 +43,7 @@ def clear_scene():
 
 def add_lights():
     ops.object.light_add(type='SUN', radius=1, location=(DISTANCE / 4, DISTANCE / 8, DISTANCE / 2))
+    context.active_object.data.energy = 3.00
 
 
 def add_plane():
