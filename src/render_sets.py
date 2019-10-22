@@ -14,6 +14,8 @@ DISTANCE: float = 5
 # CAMERAS SETTINGS
 CAMERAS = 8
 FOV: float = 65
+NEAR_PLANE = 0.1
+FAR_PLANE = 2 * DISTANCE
 
 # RENDERING SETTINGS
 OUTPUT_RESOLUTION = 100
@@ -36,6 +38,8 @@ def create_training_camera():
 
     camera = context.active_object
     camera.name = 'training-camera'
+    camera.data.clip_start = NEAR_PLANE
+    camera.data.clip_end = FAR_PLANE
 
     return camera
 
@@ -79,6 +83,8 @@ def setup_test_cameras(model):
         camera = context.active_object
         camera.name = 'camera' + str(i)
         camera.data.angle = radians(FOV)
+        camera.data.clip_start = NEAR_PLANE
+        camera.data.clip_end = FAR_PLANE
 
         # Make camera point at the center of the model
         camera.rotation_mode = 'QUATERNION'
@@ -165,6 +171,11 @@ def render_training(model):
 def render_test(model):
 
     setup_test_cameras(model)
+
+    '''name = 'Fox'
+    data.objects.remove(data.objects['fox1'])  # TODO remove this
+    for item in data.objects:
+        print(item)'''
 
     render_setup()
     file = open(os.path.join(PATH, 'test', model.name, 'cameras.csv'), 'w')

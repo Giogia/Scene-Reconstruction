@@ -3,6 +3,7 @@ from . render_sets import render_test, render_training
 from bpy import context
 from pathlib import Path
 import os
+from bpy import data
 
 
 PATH = os.path.abspath(Path(context.scene.sw_settings.filepath).parents[1])
@@ -20,4 +21,4 @@ def main():
 
                     model = setup_scene(name)
                     render_test(model)
-                    render_training(model)
+                    # render_training(model)

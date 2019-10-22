@@ -3,9 +3,11 @@ from OpenEXR import InputFile
 import Imath
 import numpy as np
 import open3d as o3d
-from math import cos, sin, pi, log10
+import os
+from math import cos, sin, pi, pow
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
+CAMERAS = 8
 
 
 def exr_to_array(path):
@@ -46,67 +48,93 @@ def exr_to_image(path):
     return Image.fromarray(srgb_array.astype('uint8'), 'RGB')
 
 
-def display(image, depth):
+def generate_point_cloud(image, depth):
+
     model = []
     colors = []
 
-    # remove the background from points
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
+    width = image.shape[0]
+    height = image.shape[1]
 
-            if depth[i][j] < 100:
-                model.append([j / 1920, (1080 - i) / 1920, - log10(depth[i][j]) ])
-                colors.append(image[i][j])
+    ratio = width/height
+
+    # remove the background from points
+    for column in range(width):
+        for row in range(height):
+
+            distance = depth[column][row]
+            color = image[column][row]
+
+            if distance < 10:
+
+                x = distance * (row/width - 0.5)
+                y = distance * ((height-column)/width - 0.5/ratio)
+                z = - distance
+
+                model.append([x, y, z])
+                colors.append(color)
 
     assert len(model) == len(colors)
-    # Pass xyz to Open3D.o3d.geometry.PointCloud
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(model)
-    pcd.colors = o3d.utility.Vector3dVector(colors)
 
-    # o3d.io.write_point_cloud("prova.ply", pcd)
-    # pcd = o3d.io.read_point_cloud("prova.ply")
+    point_cloud = o3d.geometry.PointCloud()
+    point_cloud.points = o3d.utility.Vector3dVector(model)
+    point_cloud.colors = o3d.utility.Vector3dVector(colors)
 
-    return pcd
+    o3d.visualization.draw_geometries([point_cloud])
+
+    return point_cloud
 
 
-final_model = []
-final_colors = []
+def generate_model(name):
 
-for i in range(8):
+    final_model = []
+    final_colors = []
 
-    PATH = 'test/Fox/camera' + str(i) + '/render_.exr'
-    array = exr_to_array(PATH)
-    depth = exr_to_depth(PATH)
-    # image = exr_to_image(PATH)
-    # image.show()
+    for i in range(CAMERAS):
 
-    pcd = display(array, depth)
+        print('\r', 'Analysing Models: ' + str(i) + '/' + str(CAMERAS), end=' ')
 
-    theta = i * 2 * pi / 8
-    x = 0.5
-    z = 1
+        rendering_path = os.path.join('test', name, 'camera' + str(i), 'render_.exr')
 
-    rotation_matrix = [[cos(theta), 0.0, sin(theta), 0.0],
-                       [0.0, 1.0, 0.0, 0.0],
-                       [-sin(theta), 0.0, cos(theta), 0.0],
-                       [0.0, 0.0, 0.0, 1.0]]
+        intermediate_model_directory = os.path.join('test', name, 'intermediate_models')
+        intermediate_model_path = os.path.join(intermediate_model_directory, str(i) + '.ply')
 
-    pcd.translate(np.asarray([-x, 0, z]))
-    pcd.transform(rotation_matrix)
+        if os.path.exists(intermediate_model_path):
+            point_cloud = o3d.io.read_point_cloud(intermediate_model_path)
 
-    o3d.io.write_point_cloud("prova"+str(i)+".ply", pcd)
-    # pcd = o3d.io.read_point_cloud("prova"+str(i)+".ply")
-    # o3d.visualization.draw_geometries([pcd])
+        else:
+            if not os.path.exists(intermediate_model_directory):
+                os.makedirs(intermediate_model_directory)
 
-    adding_points = np.asarray(pcd.points)
-    final_model.append(np.asarray(pcd.points))
-    final_colors.append(np.asarray(pcd.colors))
+            array = exr_to_array(rendering_path)
+            depth = exr_to_depth(rendering_path)
+            point_cloud = generate_point_cloud(array, depth)
 
-    print(i)
+            theta = 2 * pi * i / CAMERAS
+            x = 0
+            z = 5
 
-final_pcd = o3d.geometry.PointCloud()
-final_pcd.points = o3d.utility.Vector3dVector(np.concatenate(final_model, axis=0))
-final_pcd.colors = o3d.utility.Vector3dVector(np.concatenate(final_colors, axis=0))
+            rotation_matrix = [[cos(theta), 0.0, sin(theta), 0.0],
+                               [0.0, 1.0, 0.0, 0.0],
+                               [-sin(theta), 0.0, cos(theta), 0.0],
+                               [0.0, 0.0, 0.0, 1.0]]
 
-o3d.visualization.draw_geometries([final_pcd])
+            point_cloud.translate(np.asarray([-x, 0, z]))
+            point_cloud.transform(rotation_matrix)
+
+            o3d.io.write_point_cloud(intermediate_model_path, point_cloud)
+
+        final_model.append(np.asarray(point_cloud.points))
+        final_colors.append(np.asarray(point_cloud.colors))
+
+    final_point_cloud = o3d.geometry.PointCloud()
+    final_point_cloud.points = o3d.utility.Vector3dVector(np.concatenate(final_model, axis=0))
+    final_point_cloud.colors = o3d.utility.Vector3dVector(np.concatenate(final_colors, axis=0))
+
+    print('\r', 'Model Generation Complete', end=' ')
+
+    return final_point_cloud
+
+
+pcd = generate_model('Fox')
+o3d.visualization.draw_geometries([pcd])
