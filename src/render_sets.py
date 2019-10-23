@@ -1,47 +1,34 @@
 import csv
 import os
 from math import pi, sin, cos, radians
-from pathlib import Path
 from random import random
-
-from bpy import context, data, ops
+from bpy import context, ops
 from mathutils import Vector
-
-# CONFIGURATION PARAMETERS
-PATH = os.path.abspath(Path(context.scene.sw_settings.filepath).parents[1])
-DISTANCE: float = 5
-
-# CAMERAS SETTINGS
-CAMERAS = 8
-FOV: float = 65
-NEAR_PLANE = 0.1
-FAR_PLANE = 2 * DISTANCE
-
-# RENDERING SETTINGS
-OUTPUT_RESOLUTION = 100
-START_FRAME = 0
-END_FRAME = 250
-
-SAMPLES = 100
-
-DISTANCE_NOISE: float = 1  # meters
-PITCH_NOISE: float = 10  # degrees
-FOV_NOISE: float = 10  # degrees
+from . parameters import *
 
 
 def noise(value):
     return value * (random() - 0.5)
 
 
-def create_training_camera():
-    ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0, 0, 0))
+def setup_camera(name, location):
+
+    ops.object.camera_add(enter_editmode=False, align='VIEW', location=location)
 
     camera = context.active_object
-    camera.name = 'training-camera'
+    camera.name = name
+    camera.data.angle = radians(FOV)
+    camera.data.sensor_width = SENSOR_WIDTH
     camera.data.clip_start = NEAR_PLANE
     camera.data.clip_end = FAR_PLANE
 
     return camera
+
+
+def look_at_model(camera, model):
+    camera.rotation_mode = 'QUATERNION'
+    looking_direction = Vector(camera.location) - Vector(model.location)
+    camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
 
 
 def move_training_camera(camera, model):
@@ -57,11 +44,7 @@ def move_training_camera(camera, model):
 
     camera.location = (x, y, z)
 
-    # set quaternion
-    camera.rotation_mode = 'QUATERNION'
-    looking_direction = Vector(camera.location) - Vector(model.location)
-
-    camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
+    look_at_model(camera, model)
 
     # set fov
     camera.data.angle = radians(FOV + noise(FOV_NOISE))
@@ -77,19 +60,8 @@ def setup_test_cameras(model):
         y = DISTANCE * sin(angle)
         z = model.location[2]  # height of center of the model
 
-        # Adding Camera
-        ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, z))
-
-        camera = context.active_object
-        camera.name = 'camera' + str(i)
-        camera.data.angle = radians(FOV)
-        camera.data.clip_start = NEAR_PLANE
-        camera.data.clip_end = FAR_PLANE
-
-        # Make camera point at the center of the model
-        camera.rotation_mode = 'QUATERNION'
-        looking_direction = Vector(camera.location) - Vector(model.location)
-        camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
+        camera = setup_camera(name='camera' + str(i), location=(x, y, z))
+        look_at_model(camera, model)
 
 
 def render_setup():
@@ -151,7 +123,7 @@ def save_camera_parameters(name, camera, writer, file):
 
 def render_training(model):
 
-    camera = create_training_camera()
+    camera = setup_camera(name='training-camera', location=(0, 0, 0))
 
     render_setup()
     file = open(os.path.join(PATH, 'training', model.name, 'cameras.csv'), 'w')
@@ -171,11 +143,6 @@ def render_training(model):
 def render_test(model):
 
     setup_test_cameras(model)
-
-    '''name = 'Fox'
-    data.objects.remove(data.objects['fox1'])  # TODO remove this
-    for item in data.objects:
-        print(item)'''
 
     render_setup()
     file = open(os.path.join(PATH, 'test', model.name, 'cameras.csv'), 'w')

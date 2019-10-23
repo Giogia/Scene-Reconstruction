@@ -4,10 +4,10 @@ import Imath
 import numpy as np
 import open3d as o3d
 import os
-from math import cos, sin, pi, pow
+from math import cos, sin, pi, pow, radians, tan
+from parameters import *
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
-CAMERAS = 8
 
 
 def exr_to_array(path):
@@ -53,23 +53,25 @@ def generate_point_cloud(image, depth):
     model = []
     colors = []
 
-    width = image.shape[0]
-    height = image.shape[1]
+    height = image.shape[0]
+    width = image.shape[1]
 
     ratio = width/height
 
     # remove the background from points
-    for column in range(width):
-        for row in range(height):
+    for row in range(height):
+        for column in range(width):
 
-            distance = depth[column][row]
-            color = image[column][row]
+            z = depth[row][column]
 
-            if distance < 10:
+            if z < 10:
 
-                x = distance * (row/width - 0.5)
-                y = distance * ((height-column)/width - 0.5/ratio)
-                z = - distance
+                color = image[row][column]
+                focal_length = SENSOR_WIDTH / (2 * tan(radians(FOV) / 2))
+
+                x = z * (column/width - 0.5) / focal_length
+                y = z * ((height-row)/width - 0.5/ratio) / focal_length
+                z = 5 - z
 
                 model.append([x, y, z])
                 colors.append(color)
@@ -80,7 +82,21 @@ def generate_point_cloud(image, depth):
     point_cloud.points = o3d.utility.Vector3dVector(model)
     point_cloud.colors = o3d.utility.Vector3dVector(colors)
 
-    o3d.visualization.draw_geometries([point_cloud])
+    # o3d.visualization.draw_geometries([point_cloud])
+
+    return point_cloud
+
+
+def transform_model(point_cloud, angle=0, x=0, y=0, z=0):
+
+    # rotate on x axis
+    rotation_matrix = [[cos(angle), 0.0, sin(angle), 0.0],
+                       [0.0, 1.0, 0.0, 0.0],
+                       [-sin(angle), 0.0, cos(angle), 0.0],
+                       [0.0, 0.0, 0.0, 1.0]]
+
+    point_cloud.translate(np.asarray([x, y, z]))
+    point_cloud.transform(rotation_matrix)
 
     return point_cloud
 
@@ -92,7 +108,7 @@ def generate_model(name):
 
     for i in range(CAMERAS):
 
-        print('\r', 'Analysing Models: ' + str(i) + '/' + str(CAMERAS), end=' ')
+        print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(CAMERAS), end=' ')
 
         rendering_path = os.path.join('test', name, 'camera' + str(i), 'render_.exr')
 
@@ -111,16 +127,8 @@ def generate_model(name):
             point_cloud = generate_point_cloud(array, depth)
 
             theta = 2 * pi * i / CAMERAS
-            x = 0
-            z = 5
 
-            rotation_matrix = [[cos(theta), 0.0, sin(theta), 0.0],
-                               [0.0, 1.0, 0.0, 0.0],
-                               [-sin(theta), 0.0, cos(theta), 0.0],
-                               [0.0, 0.0, 0.0, 1.0]]
-
-            point_cloud.translate(np.asarray([-x, 0, z]))
-            point_cloud.transform(rotation_matrix)
+            point_cloud = transform_model(point_cloud, angle=theta)
 
             o3d.io.write_point_cloud(intermediate_model_path, point_cloud)
 
@@ -130,6 +138,10 @@ def generate_model(name):
     final_point_cloud = o3d.geometry.PointCloud()
     final_point_cloud.points = o3d.utility.Vector3dVector(np.concatenate(final_model, axis=0))
     final_point_cloud.colors = o3d.utility.Vector3dVector(np.concatenate(final_colors, axis=0))
+
+    output_path = os.path.join('test', name, 'model.ply')
+
+    o3d.io.write_point_cloud(output_path, point_cloud)
 
     print('\r', 'Model Generation Complete', end=' ')
 

@@ -1,10 +1,7 @@
 import os
-from pathlib import Path
-from bpy import context, data, ops
-
-# CONFIGURATION PARAMETERS
-PATH = os.path.abspath(Path(context.scene.sw_settings.filepath).parents[1])
-DISTANCE: float = 5
+from bpy import context, ops
+import csv
+from . parameters import *
 
 
 def setup_scene(name):
@@ -73,3 +70,10 @@ def directory_setup(model):
     if not os.path.exists(test_directory):
         os.makedirs(test_directory)
 
+
+def save_parameters():
+
+    file = open(os.path.join(PATH, 'parameters.csv'), 'w')
+    writer = csv.writer(file)
+
+    writer.writerow()
