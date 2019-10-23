@@ -56,24 +56,26 @@ def generate_point_cloud(image, depth):
     height = image.shape[0]
     width = image.shape[1]
 
-    ratio = width/height
+    center_x = width/2
+    center_y = height/2
+    center_z = DISTANCE
 
     # remove the background from points
     for row in range(height):
         for column in range(width):
 
-            z = depth[row][column]
+            distance = depth[row][column]
 
-            if z < 10:
+            if distance < 10:
 
                 color = image[row][column]
-                focal_length = SENSOR_WIDTH / (2 * tan(radians(FOV) / 2))
+                focal_length = 1 / (2 * tan(radians(FOV) / 2))
 
-                x = z * (column/width - 0.5) / focal_length
-                y = z * ((height-row)/width - 0.5/ratio) / focal_length
-                z = 5 - z
+                x = distance * (column - center_x) / width / focal_length  # blender y
+                y = distance * ((height-row-1) - center_y) / width / focal_length  # blender z
+                z = distance - center_z  # blender x
 
-                model.append([x, y, z])
+                model.append([x, y, -z])  # +z in blender
                 colors.append(color)
 
     assert len(model) == len(colors)
@@ -106,7 +108,7 @@ def generate_model(name):
     final_model = []
     final_colors = []
 
-    for i in range(CAMERAS):
+    for i in range(1):
 
         print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(CAMERAS), end=' ')
 

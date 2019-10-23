@@ -1,10 +1,13 @@
 from . scene import setup_scene
 from . render_sets import render_test, render_training
 import os
-from . parameters import PATH
+import sys
+from pathlib import Path
 from bpy import data
 
-import sys
+# PATH TO REPOSITORY
+PATH = Path(data.filepath).parent
+
 sys.path.append(os.path.dirname(data.filepath))
 
 
@@ -19,5 +22,5 @@ def main():
                     name = os.path.splitext(file)[0]
 
                     model = setup_scene(name)
-                    # render_test(model)
-                    render_training(model)
+                    render_test(model)
+                    # render_training(model)

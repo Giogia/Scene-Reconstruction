@@ -2,9 +2,13 @@ import csv
 import os
 from math import pi, sin, cos, radians
 from random import random
-from bpy import context, ops
+from bpy import context, ops, data
 from mathutils import Vector
 from . parameters import *
+from pathlib import Path
+
+# PATH TO REPOSITORY
+PATH = Path(data.filepath).parent
 
 
 def noise(value):
@@ -153,8 +157,8 @@ def render_test(model):
         camera = data.objects['camera' + str(i)]
 
         file_path = os.path.join(PATH, 'test', model.name, camera.name, 'render' + '_')
-        save_image(camera, file_path)
-        save_camera_parameters(camera.name, camera, writer, file)
+        # save_image(camera, file_path)
+        # save_camera_parameters(camera.name, camera, writer, file)
 
     print('Test set completed Successfully\n\n')
 

@@ -1,7 +1,10 @@
 import os
-from bpy import context, ops
-import csv
+from bpy import context, ops, data
 from . parameters import *
+from pathlib import Path
+
+# PATH TO REPOSITORY
+PATH = Path(data.filepath).parent
 
 
 def setup_scene(name):

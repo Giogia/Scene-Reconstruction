@@ -1,15 +1,9 @@
-# PATH TO REPOSITORY
-from pathlib import Path
-from bpy import data
-PATH = Path(data.filepath).parent
-
 # CAMERAS SETTINGS
 DISTANCE = 5
 CAMERAS = 8
 FOV = 65
 NEAR_PLANE = 0.1
 FAR_PLANE = 2 * DISTANCE
-SENSOR_WIDTH = 36
 
 # RENDERING SETTINGS
 OUTPUT_RESOLUTION = 100
