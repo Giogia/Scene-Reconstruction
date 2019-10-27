@@ -1,11 +1,12 @@
-import csv
 import os
 from math import pi, sin, cos, radians
 from random import random
 from bpy import context, ops, data
 from mathutils import Vector
-from . parameters import *
 from pathlib import Path
+
+from . parameters import *
+from . load_save import csv_setup, save_camera_parameters
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
@@ -22,7 +23,6 @@ def setup_camera(name, location):
     camera = context.active_object
     camera.name = name
     camera.data.angle = radians(FOV)
-    camera.data.sensor_width = SENSOR_WIDTH
     camera.data.clip_start = NEAR_PLANE
     camera.data.clip_end = FAR_PLANE
 
@@ -33,6 +33,8 @@ def look_at_model(camera, model):
     camera.rotation_mode = 'QUATERNION'
     looking_direction = Vector(camera.location) - Vector(model.location)
     camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
+    camera.rotation_mode = 'XYZ'
+    camera.rotation_euler[1] = radians(20)
 
 
 def move_training_camera(camera, model):
@@ -62,7 +64,7 @@ def setup_test_cameras(model):
 
         x = DISTANCE * cos(angle)
         y = DISTANCE * sin(angle)
-        z = model.location[2]  # height of center of the model
+        z = 2 * model.location[2]  # height of center of the model
 
         camera = setup_camera(name='camera' + str(i), location=(x, y, z))
         look_at_model(camera, model)
@@ -100,16 +102,6 @@ def render_setup():
     links.new(render_node.outputs['Depth'], composite_node.inputs['Z'])
 
 
-def csv_setup(file):
-
-    writer = csv.writer(file)
-
-    header = ['Name', 'Location', 'Quaternion', 'Fov']
-    writer.writerow(header)
-
-    return writer
-
-
 def save_image(camera, file_path):
 
     context.scene.render.filepath = file_path
@@ -117,21 +109,15 @@ def save_image(camera, file_path):
     ops.render.render(animation=False, write_still=True)
 
 
-def save_camera_parameters(name, camera, writer, file):
-
-    position = [coordinate for coordinate in camera.location]
-    rotation = [direction for direction in camera.rotation_quaternion]
-    writer.writerow([name, position, rotation, FOV])
-    file.flush()
-
-
 def render_training(model):
 
     camera = setup_camera(name='training-camera', location=(0, 0, 0))
 
     render_setup()
+    
     file = open(os.path.join(PATH, 'training', model.name, 'cameras.csv'), 'w')
-    writer = csv_setup(file)
+    header = ['Name', 'Location', 'Rotation', 'Fov']
+    writer = csv_setup(file, header)
 
     for i in range(SAMPLES):
 
@@ -149,16 +135,18 @@ def render_test(model):
     setup_test_cameras(model)
 
     render_setup()
+    
     file = open(os.path.join(PATH, 'test', model.name, 'cameras.csv'), 'w')
-    writer = csv_setup(file)
+    header = ['Name', 'Location', 'Rotation', 'Fov']
+    writer = csv_setup(file, header)
 
     for i in range(CAMERAS):
 
         camera = data.objects['camera' + str(i)]
 
         file_path = os.path.join(PATH, 'test', model.name, camera.name, 'render' + '_')
-        # save_image(camera, file_path)
-        # save_camera_parameters(camera.name, camera, writer, file)
+        save_image(camera, file_path)
+        save_camera_parameters(camera.name, camera, writer, file)
 
     print('Test set completed Successfully\n\n')
 
