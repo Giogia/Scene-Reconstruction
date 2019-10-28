@@ -58,12 +58,30 @@ def add_model(name):
     model = context.active_object
     model.name = name
     ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
-    ops.object.shade_smooth()
+
+    context.view_layer.objects.active = model.children[0]
+    increase_resolution(model)
+    save_model(model)
     
     file = open(os.path.join(PATH, 'test', model.name, 'model.csv'), 'w')
     save_model_parameters(file, model)
 
     return model
+
+
+def increase_resolution(model):
+
+    while len(model.children[0].data.vertices) < POLY_NUMBER:
+        ops.object.modifier_add(type='MULTIRES')
+        ops.object.multires_subdivide(modifier='Multires')
+        ops.object.modifier_apply(apply_as='DATA', modifier='Multires')
+
+
+def save_model(model):
+
+    context.view_layer.objects.active = model.children[0]
+    path = os.path.join(PATH, 'test', model.name, 'groundtruth.ply')
+    ops.export_mesh.ply(filepath=path)
 
 
 def directory_setup(name):

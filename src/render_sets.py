@@ -34,7 +34,6 @@ def look_at_model(camera, model):
     looking_direction = Vector(camera.location) - Vector(model.location)
     camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
     camera.rotation_mode = 'XYZ'
-    camera.rotation_euler[1] = radians(20)
 
 
 def move_training_camera(camera, model):
@@ -64,7 +63,7 @@ def setup_test_cameras(model):
 
         x = DISTANCE * cos(angle)
         y = DISTANCE * sin(angle)
-        z = 2 * model.location[2]  # height of center of the model
+        z = model.location[2]  # height of center of the model
 
         camera = setup_camera(name='camera' + str(i), location=(x, y, z))
         look_at_model(camera, model)

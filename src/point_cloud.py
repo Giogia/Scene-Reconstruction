@@ -4,12 +4,12 @@ from math import cos, sin, radians, tan
 from parameters import *
 from exr import *
 from load_save import read_csv
-import trimesh
+
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
 
 
-def generate_point_cloud(image, depth):
+def image_to_point_cloud(image, depth):
 
     model = []
     colors = []
@@ -43,11 +43,27 @@ def generate_point_cloud(image, depth):
     point_cloud = o3d.geometry.PointCloud()
     point_cloud.points = o3d.utility.Vector3dVector(model)
     point_cloud.colors = o3d.utility.Vector3dVector(colors)
+    point_cloud.estimate_normals()
 
     return point_cloud
 
 
-def transform_model(point_cloud, location=(0, 0, 0), rotation=(0, 0, 0)):
+def mesh_to_point_cloud(mesh):
+
+    point_cloud = o3d.geometry.PointCloud()
+
+    vertices = []
+    for vertex in mesh.vertices:
+        vertices.append(vertex * 10 / OUTPUT_RESOLUTION)
+
+    point_cloud.points = o3d.utility.Vector3dVector(vertices)
+    point_cloud.colors = mesh.vertex_colors
+    point_cloud.normals = mesh.vertex_normals
+
+    return point_cloud
+
+
+def transform_point_cloud(point_cloud, location=(0, 0, 0), rotation=(0, 0, 0)):
 
     x = -location[0]
     y = location[1]
@@ -83,7 +99,7 @@ def transform_model(point_cloud, location=(0, 0, 0), rotation=(0, 0, 0)):
     return point_cloud
 
 
-def generate_model(name):
+def generate_point_cloud(name):
 
     final_model = []
     final_colors = []
@@ -106,17 +122,18 @@ def generate_model(name):
 
             array = exr_to_array(rendering_path)
             depth = exr_to_depth(rendering_path)
-            point_cloud = generate_point_cloud(array, depth)
+            point_cloud = image_to_point_cloud(array, depth)
 
             file = os.path.join('test', name, 'cameras.csv')
 
             location = read_csv(file=file, field='Location', row_number=i)
             rotation = read_csv(file=file, field='Rotation', row_number=i)
 
-            point_cloud = transform_model(point_cloud, location=location, rotation=rotation)
+            point_cloud = transform_point_cloud(point_cloud, location=location, rotation=rotation)
 
             o3d.io.write_point_cloud(intermediate_model_path, point_cloud)
 
+        # just for debugging
         # o3d.visualization.draw_geometries([point_cloud])
 
         final_model.append(np.asarray(point_cloud.points))
@@ -125,6 +142,7 @@ def generate_model(name):
     final_point_cloud = o3d.geometry.PointCloud()
     final_point_cloud.points = o3d.utility.Vector3dVector(np.concatenate(final_model, axis=0))
     final_point_cloud.colors = o3d.utility.Vector3dVector(np.concatenate(final_colors, axis=0))
+    point_cloud.estimate_normals()
 
     output_path = os.path.join('test', name, 'model.ply')
 
@@ -135,9 +153,20 @@ def generate_model(name):
     return final_point_cloud
 
 
-pcd = generate_model('Fox')
-pcd.estimate_normals()
-radii = [1, 2]
-rec_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector(radii))
-print('bella')
-o3d.visualization.draw_geometries([pcd, rec_mesh])
+def generate_point_cloud_groundtruth():
+
+    mesh = o3d.io.read_triangle_mesh(os.path.join('test', 'Fox', 'groundtruth.ply'))
+    point_cloud = mesh_to_point_cloud(mesh)
+
+    output_path = os.path.join('test', 'Fox', 'groundtruth_point_cloud.ply')
+    o3d.io.write_point_cloud(output_path, point_cloud)
+
+    return point_cloud
+
+
+point_cloud = generate_point_cloud('Fox')
+point_cloud_groundtruth = generate_point_cloud_groundtruth()
+o3d.visualization.draw_geometries([point_cloud, point_cloud_groundtruth])
+
+
+
