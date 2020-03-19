@@ -1,0 +1,31 @@
+# CAMERAS SETTINGS
+DISTANCE = 5
+HEIGHT = 1.5
+FOV = 65
+NEAR_PLANE = 0.1
+FAR_PLANE = 10 * DISTANCE
+
+DISTANCE_NOISE: float = 5  # meters
+HEIGHT_NOISE: float = 2  # meters
+
+YAW_NOISE: float = 30  # degrees
+FOV_NOISE: float = 10  # degrees
+
+# MODEL SETTINGS
+POLY_NUMBER = 250
+
+# RENDERING SETTINGS
+OUTPUT_RESOLUTION = 10  # percentage
+START_FRAME = 0
+END_FRAME = 250
+
+# TRAINING SETTINGS
+TRAINING_SAMPLES = 100
+
+# TEST SETTINGS
+TEST_SAMPLES = 8
+
+
+# FILE SETTINGS
+CAMERA_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Fov']
+MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']

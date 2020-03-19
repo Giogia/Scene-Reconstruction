@@ -1,9 +1,9 @@
 import open3d as o3d
 import os
 from math import cos, sin, radians, tan
-from parameters import *
-from exr import *
-from load_save import read_csv
+from blender.parameters import *
+from utils.exr_utils import *
+from blender.csv_utils import read_csv
 
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
@@ -104,14 +104,14 @@ def generate_point_cloud(name):
     final_model = []
     final_colors = []
 
-    for i in range(CAMERAS):
+    for i in range(TEST_SAMPLES):
 
-        print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(CAMERAS), end=' ')
+        print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(TEST_SAMPLES), end=' ')
 
-        rendering_path = os.path.join('test', name, 'camera' + str(i), 'render_.exr')
+        rendering_path = os.path.join('test', name, str(i+1) + '.exr')
 
         intermediate_model_directory = os.path.join('test', name, 'intermediate_models')
-        intermediate_model_path = os.path.join(intermediate_model_directory, str(i) + '.ply')
+        intermediate_model_path = os.path.join(intermediate_model_directory, str(i+1) + '.ply')
 
         if os.path.exists(intermediate_model_path):
             point_cloud = o3d.io.read_point_cloud(intermediate_model_path)
