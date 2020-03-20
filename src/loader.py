@@ -1,9 +1,10 @@
+from .camera import get_calibration_matrix, get_pose_matrix
 from .csv_utils import csv_setup
 from math import degrees
 from bpy import context, ops, data
 import os
 from pathlib import Path
-from . parameters import MODEL_FILE_HEADER
+from .parameters import MODEL_FILE_HEADER
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
@@ -33,9 +34,9 @@ def save_model(model):
     save_model_parameters(file, model)
 
     # Generate Mesh
-    context.view_layer.objects.active = model.children[0]
-    path = os.path.join(PATH, 'test', model.name, 'groundtruth.ply')
-    ops.export_mesh.ply(filepath=path)
+    context.view_layer.objects.active = model
+    path = os.path.join(PATH, 'test', model.name, 'groundtruth.glb')
+    ops.export_scene.gltf(filepath=path)
 
 
 def save_blender_image(camera, file_path):
@@ -52,12 +53,28 @@ def save_model_parameters(file, model):
     rotation = [degrees(angle) for angle in model.rotation_euler]
     scale = [scale for scale in model.scale]
     dimensions = [dimension for dimension in model.dimensions]
+
     writer.writerow([model.name, location, rotation, scale, dimensions])
     file.flush()
 
 
+def save_camera_intrinsics(file):
+
+    writer = csv_setup(file, ['Camera Intrinsics'])
+
+    intrinsics = get_calibration_matrix()
+
+    writer.writerow([intrinsics])
+    file.flush()
+
+
 def save_camera_parameters(frame, camera, writer, file):
+
     location = [coordinate for coordinate in camera.location]
     rotation = [degrees(angle) for angle in camera.rotation_euler]
-    writer.writerow([frame, location, rotation, degrees(camera.data.angle)])
+    fov = degrees(camera.data.angle)
+
+    pose_matrix = get_pose_matrix(camera).flatten().tolist()
+
+    writer.writerow([frame, location, rotation, fov, pose_matrix])
     file.flush()

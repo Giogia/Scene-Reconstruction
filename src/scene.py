@@ -1,26 +1,30 @@
 from bpy import context, ops, data
-from . parameters import *
-from . loader import create_directory, import_model, save_model
+
+from .parameters import *
+from .loader import create_directory, import_model, save_model
 
 
 def setup_scene(name):
-
-    print('\n\nSetup the scene for the following model:' + name + '\n\n')
-
-    clear_scene()
-    add_lights()
-    add_plane()
-
+    print('\n\nSetup the scene for the following model:' + name)
     create_directory(name)
 
-    model = add_model(name)
+    try:
+        model = context.scene.objects[name]
+        print('Found model in current scene')
+
+    except KeyError:
+
+        clear_scene()
+        add_lights()
+        add_plane()
+        model = add_model(name)
+
     save_model(model)
 
     return model
 
 
 def clear_scene():
-
     # Clear data from previous scenes
     if data:
         for item in data.objects:
@@ -49,7 +53,6 @@ def add_plane():
 
 
 def add_model(name):
-
     import_model(name)
     model = context.active_object
     model.name = name
@@ -62,9 +65,7 @@ def add_model(name):
 
 
 def increase_resolution(model):
-
     while len(model.children[0].data.vertices) < POLY_NUMBER:
         ops.object.modifier_add(type='MULTIRES')
         ops.object.multires_subdivide(modifier='Multires')
         ops.object.modifier_apply(apply_as='DATA', modifier='Multires')
-

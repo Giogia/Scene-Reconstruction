@@ -1,4 +1,3 @@
-from .scene import setup_scene
 from .render import setup_rendering_parameters, render
 import os
 import sys
@@ -14,6 +13,8 @@ sys.path.append(os.path.dirname(data.filepath))
 
 
 def main():
+
+    from .scene import setup_scene
 
     # Explore directory and run for every model in models
     models_directory = os.listdir(os.path.join(PATH, 'models'))

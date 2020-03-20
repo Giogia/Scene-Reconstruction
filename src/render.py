@@ -4,8 +4,8 @@ from bpy import context, data
 from pathlib import Path
 
 from .parameters import *
-from .cameras import setup_camera, noise, move_camera, set_fov
-from .loader import save_camera_parameters, save_blender_image
+from .camera import setup_camera, noise, move_camera
+from .loader import save_camera_parameters, save_blender_image, save_camera_intrinsics
 from .csv_utils import csv_setup
 
 from math import pi, sin, cos, radians
@@ -15,6 +15,7 @@ PATH = Path(data.filepath).parent
 
 
 def setup_rendering_parameters():
+
     # Rendering options
     context.scene.render.use_overwrite = True
     context.scene.render.use_placeholder = True
@@ -49,10 +50,20 @@ def render(model, samples, training=False):
 
     name = 'Training' if training else 'Test'
 
-    camera = setup_camera(name=name+'_Camera', location=(0, 0, 0))
+    camera_name = name+'_Camera'
 
-    file = open(os.path.join(PATH, name, model.name, 'cameras.csv'), 'w')
-    writer = csv_setup(file, CAMERA_FILE_HEADER)
+    try:
+        camera = context.scene.objects[camera_name]
+        print("Found Camera in current scene")
+
+    except KeyError:
+        camera = setup_camera(name=camera_name, location=(0, 0, 0))
+
+    camera_file = open(os.path.join(PATH, name, model.name, 'camera_calibration.csv'), 'w')
+    save_camera_intrinsics(camera_file)
+
+    frames_file = open(os.path.join(PATH, name, model.name, 'frames.csv'), 'w')
+    writer = csv_setup(frames_file, CAMERA_FILE_HEADER)
 
     for i in range(samples):
 
@@ -66,12 +77,8 @@ def render(model, samples, training=False):
 
         move_camera(camera, (x, y, z), model)
 
-        #fov = FOV + noise(FOV_NOISE)
-        #set_fov(camera, fov)
-
         file_path = os.path.join(PATH, name, model.name, str(i+1))
         save_blender_image(camera, file_path)
-        save_camera_parameters(i+1, camera, writer, file)
+        save_camera_parameters(i+1, camera, writer, frames_file)
 
     print(name + ' set completed Successfully\n\n')
-

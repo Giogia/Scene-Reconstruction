@@ -5,7 +5,7 @@ FOV = 65
 NEAR_PLANE = 0.1
 FAR_PLANE = 10 * DISTANCE
 
-DISTANCE_NOISE: float = 5  # meters
+DISTANCE_NOISE: float = 3  # meters
 HEIGHT_NOISE: float = 2  # meters
 
 YAW_NOISE: float = 30  # degrees
@@ -23,9 +23,9 @@ END_FRAME = 250
 TRAINING_SAMPLES = 100
 
 # TEST SETTINGS
-TEST_SAMPLES = 8
+TEST_SAMPLES = 5
 
 
 # FILE SETTINGS
-CAMERA_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Fov']
+CAMERA_FILE_HEADER = ['Frame', 'Location', 'Rotation', 'Fov', 'Matrix']
 MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']
