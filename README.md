@@ -1,2 +1,2 @@
-# blender-scene
-multiple camera views of an animated object using blender
+# Scene Reconstruction
+reconstruction of tridimensional scene from multiple camera with depth
