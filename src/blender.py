@@ -27,7 +27,7 @@ def main():
             models = os.listdir(os.path.join(PATH, 'models', folder))
 
             for model in models:
-                if model.endswith('.fbx'):
+                if model.endswith('.obj'):
 
                     name = os.path.splitext(model)[0]
                     model = scene.setup_scene(name)

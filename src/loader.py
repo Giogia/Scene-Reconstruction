@@ -25,9 +25,14 @@ def create_directory(name):
         os.makedirs(test_directory)
 
 
-def import_model(name):
-    model_path = os.path.join(PATH, 'models', name, name + '.fbx')
-    ops.import_scene.fbx(filepath=model_path)
+def import_model(name, extension='obj'):
+    model_path = os.path.join(PATH, 'models', name, name + '.' + extension)
+
+    if extension == 'fbx':
+        ops.import_scene.fbx(filepath=model_path)
+
+    if extension == 'obj':
+        ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
 
 
 def save_model(model, extension='obj'):

@@ -63,18 +63,18 @@ def add_model(name):
     with suppress_stdout_stderr():
         loader.import_model(name)
 
-    model = context.active_object
-    model.name = name
-    ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
-
-    context.view_layer.objects.active = model.children[0]
+    model = data.objects[name]
+    model.scale = [parameters.SCALE, parameters.SCALE, parameters.SCALE]
     increase_resolution(model)
+
+    context.view_layer.objects.active = model
+    ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
 
     return model
 
 
 def increase_resolution(model):
-    while len(model.children[0].data.vertices) < parameters.POLY_NUMBER:
+    while len(model.data.vertices) < parameters.POLY_NUMBER:
         ops.object.modifier_add(type='MULTIRES')
         ops.object.multires_subdivide(modifier='Multires')
         ops.object.modifier_apply(apply_as='DATA', modifier='Multires')

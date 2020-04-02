@@ -71,7 +71,7 @@ def render(model, samples, training=False):
 
         angle = 2 * pi * i / samples + camera_utils.noise(radians(parameters.YAW_NOISE))
         distance = parameters.DISTANCE + camera_utils.noise(2 * parameters.DISTANCE_NOISE)
-        height = model.location[2] + camera_utils.noise(parameters.HEIGHT_NOISE)
+        height = min(model.location[2], 1) + camera_utils.noise(parameters.HEIGHT_NOISE)
 
         x = distance * cos(angle)
         y = distance * sin(angle)

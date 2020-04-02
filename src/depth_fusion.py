@@ -56,6 +56,11 @@ def fuse(name):
         # Integrate observation into voxel volume (assume color aligned with depth)
         tsdf_volume.integrate(color, depth, camera_intrinsics, camera_pose, obs_weight=1.)
 
+        # Save intermediate models
+        vertices, faces, norms, colors = tsdf_volume.get_mesh()
+        saving_path = os.path.join(path, 'mesh.ply')
+        meshwrite(saving_path, vertices, faces, norms, colors)
+
     fps = images / (time.time() - t0_elapse)
     print("Average FPS: {:.2f}".format(fps))
 
@@ -72,4 +77,4 @@ def fuse(name):
     # fusion.pcwrite("pc.ply", point_cloud)
 
 
-fuse('Fox')
+fuse('Fly')

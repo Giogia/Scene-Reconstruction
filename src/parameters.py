@@ -1,3 +1,7 @@
+# MODEL SETTINGS
+POLY_NUMBER = 250
+SCALE = 1/100
+
 # CAMERAS SETTINGS
 DISTANCE = 5
 HEIGHT = 1.5
@@ -10,9 +14,6 @@ HEIGHT_NOISE: float = 2  # meters
 
 YAW_NOISE: float = 30  # degrees
 FOV_NOISE: float = 10  # degrees
-
-# MODEL SETTINGS
-POLY_NUMBER = 250
 
 # RENDERING SETTINGS
 OUTPUT_RESOLUTION = 100  # percentage
