@@ -1,12 +1,11 @@
 import open3d as o3d
 import os
 from math import cos, sin, radians, tan
+
 from parameters import *
 from exr_utils import *
 from csv_utils import read_csv
 
-
-FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
 PATH = os.getcwd()
 
 
@@ -19,7 +18,7 @@ def image_to_point_cloud(image, depth):
     width = image.shape[1]
 
     center_x = width/2
-    center_y = height/width/2
+    center_y = height/2
 
     # remove the background from points
     for row in range(height):
@@ -125,7 +124,7 @@ def generate_point_cloud(name):
             depth = exr_to_depth(rendering_path)
             point_cloud = image_to_point_cloud(array, depth)
 
-            file = os.path.join(PATH, '../test', name, 'cameras.csv')
+            file = os.path.join(PATH, '../test', name, 'frames.csv')
 
             location = read_csv(file=file, field='Location', row_number=i)
             rotation = read_csv(file=file, field='Rotation', row_number=i)

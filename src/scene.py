@@ -1,16 +1,21 @@
 from bpy import context, ops, data
+import os
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from importlib import reload
+from . import loader, parameters
 
-from .parameters import *
-from .loader import create_directory, import_model, save_model
+reload(loader)
+reload(parameters)
 
 
 def setup_scene(name):
-    print('\n\nSetup the scene for the following model:' + name)
-    create_directory(name)
+
+    print('Setup the scene for the following model:' + name + '\n')
+    loader.create_directory(name)
 
     try:
         model = context.scene.objects[name]
-        print('Found model in current scene')
+        print('Using model found in current scene\n')
 
     except KeyError:
 
@@ -19,7 +24,8 @@ def setup_scene(name):
         add_plane()
         model = add_model(name)
 
-    save_model(model)
+    with suppress_stdout_stderr():
+        loader.save_model(model)
 
     return model
 
@@ -44,16 +50,19 @@ def clear_scene():
 
 
 def add_lights():
-    ops.object.light_add(type='SUN', radius=1, location=(DISTANCE / 4, DISTANCE / 8, DISTANCE / 2))
+    ops.object.light_add(type='SUN', radius=1, location=(parameters.DISTANCE / 4, parameters.DISTANCE / 8, parameters.DISTANCE / 2))
     context.active_object.data.energy = 3.00
 
 
 def add_plane():
-    ops.mesh.primitive_circle_add(vertices=128, radius=5 * DISTANCE, fill_type='NGON', location=(0, 0, 0))
+    ops.mesh.primitive_circle_add(vertices=128, radius=5 * parameters.DISTANCE, fill_type='NGON', location=(0, 0, 0))
 
 
 def add_model(name):
-    import_model(name)
+
+    with suppress_stdout_stderr():
+        loader.import_model(name)
+
     model = context.active_object
     model.name = name
     ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
@@ -65,7 +74,15 @@ def add_model(name):
 
 
 def increase_resolution(model):
-    while len(model.children[0].data.vertices) < POLY_NUMBER:
+    while len(model.children[0].data.vertices) < parameters.POLY_NUMBER:
         ops.object.modifier_add(type='MULTIRES')
         ops.object.multires_subdivide(modifier='Multires')
         ops.object.modifier_apply(apply_as='DATA', modifier='Multires')
+
+
+@contextmanager
+def suppress_stdout_stderr():
+    """A context manager that redirects stdout and stderr to devnull"""
+    with open(os.devnull, 'w') as fnull:
+        with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
+            yield err, out

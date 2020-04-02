@@ -1,10 +1,13 @@
-from .camera import get_calibration_matrix, get_pose_matrix
-from .csv_utils import csv_setup
 from math import degrees
 from bpy import context, ops, data
 import os
 from pathlib import Path
 from .parameters import MODEL_FILE_HEADER
+from . import camera_utils
+from importlib import reload
+from .csv_utils import csv_setup
+
+reload(camera_utils)
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
@@ -27,16 +30,20 @@ def import_model(name):
     ops.import_scene.fbx(filepath=model_path)
 
 
-def save_model(model):
-
+def save_model(model, extension='obj'):
     # Save model parameters
     file = open(os.path.join(PATH, 'test', model.name, 'model.csv'), 'w')
     save_model_parameters(file, model)
 
     # Generate Mesh
     context.view_layer.objects.active = model
-    path = os.path.join(PATH, 'test', model.name, 'groundtruth.glb')
-    ops.export_scene.gltf(filepath=path)
+    path = os.path.join(PATH, 'test', model.name, 'groundtruth.' + extension)
+
+    if extension == 'glb':
+        ops.export_scene.gltf(filepath=path, export_draco_mesh_compression_enable=True)
+
+    elif extension == 'obj':
+        ops.export_scene.obj(filepath=path)
 
 
 def save_blender_image(camera, file_path):
@@ -46,7 +53,6 @@ def save_blender_image(camera, file_path):
 
 
 def save_model_parameters(file, model):
-
     writer = csv_setup(file, MODEL_FILE_HEADER)
 
     location = [coordinate for coordinate in model.location]
@@ -59,22 +65,21 @@ def save_model_parameters(file, model):
 
 
 def save_camera_intrinsics(file):
-
     writer = csv_setup(file, ['Camera Intrinsics'])
 
-    intrinsics = get_calibration_matrix()
+    intrinsics = camera_utils.get_calibration_matrix()
 
     writer.writerow([intrinsics])
     file.flush()
 
 
 def save_camera_parameters(frame, camera, writer, file):
-
     location = [coordinate for coordinate in camera.location]
     rotation = [degrees(angle) for angle in camera.rotation_euler]
     fov = degrees(camera.data.angle)
 
-    pose_matrix = get_pose_matrix(camera).flatten().tolist()
+    pose_matrix = camera_utils.get_pose_matrix(camera).flatten().tolist()
 
     writer.writerow([frame, location, rotation, fov, pose_matrix])
     file.flush()
+

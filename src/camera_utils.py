@@ -2,9 +2,13 @@ from math import radians, degrees
 from mathutils import Vector
 from bpy import context, ops, data
 from random import random
-from .parameters import *
 import numpy as np
-from .matrix_utils import translate_matrix, rotate_matrix
+from . import matrix_utils, parameters
+
+from importlib import reload
+
+reload(matrix_utils)
+reload(parameters)
 
 
 def setup_camera(name, location):
@@ -12,9 +16,9 @@ def setup_camera(name, location):
 
     camera = context.active_object
     camera.name = name
-    camera.data.angle = radians(FOV)
-    camera.data.clip_start = NEAR_PLANE
-    camera.data.clip_end = FAR_PLANE
+    camera.data.angle = radians(parameters.FOV)
+    camera.data.clip_start = parameters.NEAR_PLANE
+    camera.data.clip_end = parameters.FAR_PLANE
 
     return camera
 
@@ -46,6 +50,7 @@ def get_calibration_matrix():
     scene = context.scene
 
     scale = scene.render.resolution_percentage / 100
+
     resolution_x = scene.render.resolution_x * scale
     resolution_y = scene.render.resolution_y * scale
 
@@ -56,11 +61,9 @@ def get_calibration_matrix():
 
     aspect_ratio = scene.render.pixel_aspect_x / scene.render.pixel_aspect_y
 
-    s_u = resolution_x / sensor_width
-    s_v = resolution_y * aspect_ratio / sensor_height
+    alpha_u = focal_length * resolution_x / sensor_width
+    alpha_v = focal_length * resolution_y / sensor_height * aspect_ratio
 
-    alpha_u = focal_length * s_u
-    alpha_v = focal_length * s_v
     u_0 = resolution_x * scale / 2
     v_0 = resolution_y * scale / 2
 
@@ -71,7 +74,13 @@ def get_calibration_matrix():
 
 def get_pose_matrix(camera):
 
-    position = [coordinate for coordinate in camera.location]
-    rotation = [degrees(angle) for angle in camera.rotation_euler]
+    position = camera.location
+    rotation = camera.rotation_euler
 
-    return np.matmul(translate_matrix(position), rotate_matrix(rotation))
+    position = [position[1], - position[2], - position[0]]
+    rotation = [degrees(rotation[0]) - 90, - degrees(rotation[2]) + 90, - degrees(rotation[1])]
+
+    # print('Position', position, '\n')
+    # print('Rotation', rotation, '\n')
+
+    return np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))

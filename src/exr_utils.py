@@ -1,4 +1,4 @@
-import Imath
+from Imath import PixelType
 import numpy as np
 from PIL import Image
 from OpenEXR import InputFile
@@ -11,18 +11,20 @@ def exr_to_array(path):
 
     size = (window.max.y - window.min.y + 1, window.max.x - window.min.x + 1)
 
-    channels_tuple = [np.frombuffer(channel, dtype=np.float32) for channel in file.channels(channels, Imath.PixelType(Imath.PixelType.FLOAT))]
+    channels_tuple = [np.frombuffer(channel, dtype=np.float32)
+                      for channel in file.channels(channels, PixelType(PixelType.FLOAT))]
     exr_array = np.dstack(channels_tuple)
     return exr_array.reshape(size + (len(channels_tuple),))
 
 
-def exr_to_depth(path):
+def exr_to_depth(path, far_threshold=100000):
     file = InputFile(path)
     window = file.header()['dataWindow']
     size = (window.max.y - window.min.y + 1, window.max.x - window.min.x + 1)
 
-    exr_depth = file.channel('Z', Imath.PixelType(Imath.PixelType.FLOAT))
-    exr_depth = np.frombuffer(exr_depth, dtype=np.float32)
+    exr_depth = file.channel('Z', PixelType(PixelType.FLOAT))
+    exr_depth = np.fromstring(exr_depth, dtype=np.float32)
+    exr_depth[exr_depth > far_threshold] = 0
     exr_depth = np.reshape(exr_depth, size)
 
     return exr_depth

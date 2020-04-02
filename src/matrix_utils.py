@@ -4,9 +4,9 @@ import numpy as np
 
 def identity():
     return np.array([[1, 0, 0, 0],
-                       [0, 1, 0, 0],
-                       [0, 0, 1, 0],
-                       [0, 0, 0, 1]], dtype=np.float)
+                     [0, 1, 0, 0],
+                     [0, 0, 1, 0],
+                     [0, 0, 0, 1]], dtype=np.float)
 
 
 def rotate_x_matrix(angle):
@@ -15,6 +15,8 @@ def rotate_x_matrix(angle):
     matrix[1][1] = matrix[2][2] = cos(radians(angle))
     matrix[1][2] = - sin(radians(angle))
     matrix[2][1] = sin(radians(angle))
+
+    assert matrix.all() == identity().all()
 
     return matrix
 
@@ -57,7 +59,23 @@ def translate_matrix(position):
     return matrix
 
 
-def rotate_matrix(rotation):
-    matrix = np.matmul(rotate_x_matrix(rotation[0]), rotate_y_matrix(rotation[1]))
+def rotate_matrix(rotation, order='XYZ'):
 
-    return np.matmul(matrix, rotate_z_matrix(rotation[2]))
+    if order == 'XYZ':
+        return np.matmul(np.matmul(
+            rotate_x_matrix(rotation[0]), rotate_y_matrix(rotation[1])), rotate_z_matrix(rotation[2]))
+    elif order == 'XZY':
+        return np.matmul(np.matmul(
+            rotate_x_matrix(rotation[0]), rotate_z_matrix(rotation[2])), rotate_y_matrix(rotation[1]))
+    elif order == 'YXZ':
+        return np.matmul(np.matmul(
+            rotate_y_matrix(rotation[1]), rotate_x_matrix(rotation[0])), rotate_z_matrix(rotation[2]))
+    elif order == 'YZX':
+        return np.matmul(np.matmul(
+            rotate_y_matrix(rotation[1]), rotate_z_matrix(rotation[2])), rotate_x_matrix(rotation[0]))
+    elif order == 'ZXY':
+        return np.matmul(np.matmul(
+            rotate_z_matrix(rotation[2]), rotate_x_matrix(rotation[0])), rotate_y_matrix(rotation[1]))
+    elif order == 'ZYX':
+        return np.matmul(np.matmul(
+            rotate_z_matrix(rotation[2]), rotate_y_matrix(rotation[1])), rotate_x_matrix(rotation[0]))
