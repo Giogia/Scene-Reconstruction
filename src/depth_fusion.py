@@ -8,6 +8,8 @@ from parameters import TEST_SAMPLES, DISTANCE
 
 from tsdf_fusion import get_view_frustum, TSDFVolume, meshwrite
 
+from visualization import show_array
+
 
 def fuse(name):
 
@@ -38,7 +40,7 @@ def fuse(name):
         bounds[:, 1] = np.maximum(bounds[:, 1], np.amax(frustum_points, axis=1))
 
     print("Initializing voxel volume...")
-    tsdf_volume = TSDFVolume(bounds, voxel_size=0.1)
+    tsdf_volume = TSDFVolume(bounds, voxel_size=0.05)
 
     # Loop through RGB-D images and fuse them together
     t0_elapse = time.time()
@@ -52,8 +54,11 @@ def fuse(name):
         color = exr_to_image(image_file)
         depth = exr_to_depth(image_file, far_threshold=2*DISTANCE)
 
+        show_array(color)
+        show_array(depth)
+
         camera_pose = np.reshape(np.array(
-            read_csv(file=camera_pose_file, field='Matrix', row_number=i), dtype=float), (4, 4))
+            read_csv(file=camera_pose_file), dtype=float), (4, 4))
 
         # Integrate observation into voxel volume (assume color aligned with depth)
         tsdf_volume.integrate(color, depth, camera_intrinsics, camera_pose, obs_weight=1.)

@@ -21,7 +21,7 @@ def setup_scene(name):
 
         clear_scene()
         add_lights()
-        # add_plane()
+        add_plane()
         model = add_model(name)
 
     with suppress_stdout_stderr():

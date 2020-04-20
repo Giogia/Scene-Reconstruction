@@ -80,8 +80,8 @@ def get_pose_matrix(camera):
     position = [position[1], - position[2], - position[0]]
     rotation = [degrees(rotation[0]) - 90, - degrees(rotation[2]) + 90, - degrees(rotation[1])]
 
-    # print('Position', position, '\n')
-    # print('Rotation', rotation, '\n')
+    print('Position', position)
+    # print('Rotation', rotation)
 
     matrix = np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))
 

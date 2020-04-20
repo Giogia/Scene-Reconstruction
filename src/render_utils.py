@@ -70,7 +70,7 @@ def render(model, samples, training=False):
         # Generate semi random positions
         angle = 2 * pi * i / samples + camera_utils.noise(radians(parameters.YAW_NOISE))
         distance = parameters.DISTANCE + camera_utils.noise(2 * parameters.DISTANCE_NOISE)
-        height = model.location[2] + camera_utils.noise(parameters.HEIGHT_NOISE)
+        height = abs(model.location[2] + camera_utils.noise(parameters.HEIGHT_NOISE))
 
         x = distance * cos(angle)
         y = distance * sin(angle)

@@ -39,16 +39,17 @@ def save_model(model, extension='obj'):
 
     """ Save model parameters
     file = open(os.path.join(PATH, 'test', model.name, 'model.csv'), 'w')
-    save_model_parameters(file, model)
+    save_model_parameters(model, file)
     """
 
     # Generate Mesh
     context.view_layer.objects.active = model
-    folder = os.path.join(PATH, 'test', model.name, 'groundtruth')
+    groundtruth_directory = os.path.join(PATH, 'test', model.name, 'groundtruth')
 
-    os.makedirs(folder)
-    
-    filepath = os.path.join(folder, 'groundtruth.' + extension)
+    if not os.path.exists(groundtruth_directory):
+        os.makedirs(groundtruth_directory)
+
+    filepath = os.path.join(groundtruth_directory, 'groundtruth.' + extension)
 
     if extension == 'glb':
         ops.export_scene.gltf(filepath=filepath , export_draco_mesh_compression_enable=True)
@@ -63,7 +64,7 @@ def export_view(camera, file_path):
     ops.render.render(animation=False, write_still=True)
 
 
-def save_model_parameters(file, model):
+def save_model_parameters(model, file):
     writer = csv_setup(file, MODEL_FILE_HEADER)
 
     location = [coordinate for coordinate in model.location]

@@ -11,6 +11,8 @@ PATH = Path(data.filepath).parent
 
 sys.path.append(os.path.dirname(data.filepath))
 
+NAMES = ['Brain']
+
 
 def main():
 
@@ -30,6 +32,10 @@ def main():
                 if model.endswith('.obj'):
 
                     name = os.path.splitext(model)[0]
+
+                    if name not in NAMES:
+                        break
+
                     model = scene.setup_scene(name)
 
                     # Render
