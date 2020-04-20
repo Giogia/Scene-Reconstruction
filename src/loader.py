@@ -36,22 +36,28 @@ def import_model(name, extension='obj'):
 
 
 def save_model(model, extension='obj'):
-    # Save model parameters
+
+    """ Save model parameters
     file = open(os.path.join(PATH, 'test', model.name, 'model.csv'), 'w')
     save_model_parameters(file, model)
+    """
 
     # Generate Mesh
     context.view_layer.objects.active = model
-    path = os.path.join(PATH, 'test', model.name, 'groundtruth.' + extension)
+    folder = os.path.join(PATH, 'test', model.name, 'groundtruth')
+
+    os.makedirs(folder)
+    
+    filepath = os.path.join(folder, 'groundtruth.' + extension)
 
     if extension == 'glb':
-        ops.export_scene.gltf(filepath=path, export_draco_mesh_compression_enable=True)
+        ops.export_scene.gltf(filepath=filepath , export_draco_mesh_compression_enable=True)
 
     elif extension == 'obj':
-        ops.export_scene.obj(filepath=path)
+        ops.export_scene.obj(filepath=filepath)
 
 
-def save_blender_image(camera, file_path):
+def export_view(camera, file_path):
     context.scene.render.filepath = file_path
     context.scene.camera = camera
     ops.render.render(animation=False, write_still=True)
@@ -69,22 +75,9 @@ def save_model_parameters(file, model):
     file.flush()
 
 
-def save_camera_intrinsics(file):
-    writer = csv_setup(file, ['Camera Intrinsics'])
+def export_matrix(matrix, file):
 
-    intrinsics = camera_utils.get_calibration_matrix()
+    writer = csv_setup(file)
 
-    writer.writerow([intrinsics])
+    [writer.writerow(row) for row in matrix]
     file.flush()
-
-
-def save_camera_parameters(frame, camera, writer, file):
-    location = [coordinate for coordinate in camera.location]
-    rotation = [degrees(angle) for angle in camera.rotation_euler]
-    fov = degrees(camera.data.angle)
-
-    pose_matrix = camera_utils.get_pose_matrix(camera).flatten().tolist()
-
-    writer.writerow([frame, location, rotation, fov, pose_matrix])
-    file.flush()
-

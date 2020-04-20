@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from csv_utils import read_csv
-from exr_utils import exr_to_depth, exr_to_array
+from exr_utils import exr_to_depth, exr_to_image
 from parameters import TEST_SAMPLES, DISTANCE
 
 from tsdf_fusion import get_view_frustum, TSDFVolume, meshwrite
@@ -16,19 +16,21 @@ def fuse(name):
     print("Estimating voxel volume bounds...")
     images = TEST_SAMPLES
 
-    camera_intrinsics_file = os.path.join(path, 'camera_calibration.csv')
-    camera_intrinsics = np.reshape(read_csv(file=camera_intrinsics_file, field='Camera Intrinsics'), (3, 3))
+    camera_intrinsics_file = os.path.join(path, 'camera_intrinsics.csv')
+    camera_intrinsics = np.reshape(read_csv(file=camera_intrinsics_file), (3, 3))
 
     bounds = np.zeros((3, 2))
 
     for i in range(0, images):
 
-        image_file = os.path.join(path, str(i+1) + '.exr')
+        name = str(i+1)
+
+        image_file = os.path.join(path, name + '.exr')
         depth = exr_to_depth(image_file, far_threshold=2*DISTANCE)
 
-        camera_pose_file = os.path.join(path, 'frames.csv')
+        camera_pose_file = os.path.join(path, name + '_pose.csv')
         camera_pose = np.reshape(np.array(
-            read_csv(file=camera_pose_file, field='Matrix', row_number=i), dtype=float), (4, 4))
+            read_csv(file=camera_pose_file), dtype=float), (4, 4))
 
         # Compute camera view frustum and extend convex hull
         frustum_points = get_view_frustum(depth, camera_intrinsics, camera_pose)
@@ -36,7 +38,7 @@ def fuse(name):
         bounds[:, 1] = np.maximum(bounds[:, 1], np.amax(frustum_points, axis=1))
 
     print("Initializing voxel volume...")
-    tsdf_volume = TSDFVolume(bounds, voxel_size=0.03)
+    tsdf_volume = TSDFVolume(bounds, voxel_size=0.1)
 
     # Loop through RGB-D images and fuse them together
     t0_elapse = time.time()
@@ -47,7 +49,7 @@ def fuse(name):
         # Read RGB-D image and camera pose
         image_file = os.path.join(path, str(i + 1) + '.exr')
 
-        color = exr_to_array(image_file)
+        color = exr_to_image(image_file)
         depth = exr_to_depth(image_file, far_threshold=2*DISTANCE)
 
         camera_pose = np.reshape(np.array(

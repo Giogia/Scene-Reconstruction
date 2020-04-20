@@ -15,13 +15,13 @@ def setup_scene(name):
 
     try:
         model = context.scene.objects[name]
-        print('Using model found in current scene\n')
+        print('Model found in current scene\n')
 
     except KeyError:
 
         clear_scene()
         add_lights()
-        add_plane()
+        # add_plane()
         model = add_model(name)
 
     with suppress_stdout_stderr():
@@ -55,7 +55,7 @@ def add_lights():
 
 
 def add_plane():
-    ops.mesh.primitive_circle_add(vertices=128, radius=5 * parameters.DISTANCE, fill_type='NGON', location=(0, 0, 0))
+    ops.mesh.primitive_circle_add(vertices=128, radius= 2 * parameters.DISTANCE, fill_type='NGON', location=(0, 0, 0))
 
 
 def add_model(name):

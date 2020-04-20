@@ -5,7 +5,7 @@ SCALE = 1/100
 # CAMERAS SETTINGS
 DISTANCE = 5
 HEIGHT = 1.5
-FOV = 65
+FOV = 35
 NEAR_PLANE = 0.1
 FAR_PLANE = 5 * DISTANCE
 
@@ -16,7 +16,7 @@ YAW_NOISE: float = 30  # degrees
 FOV_NOISE: float = 10  # degrees
 
 # RENDERING SETTINGS
-OUTPUT_RESOLUTION = 100  # percentage
+OUTPUT_RESOLUTION = 10  # percentage
 START_FRAME = 0
 END_FRAME = 250
 
@@ -28,5 +28,4 @@ TEST_SAMPLES = 8
 
 
 # FILE SETTINGS
-CAMERA_FILE_HEADER = ['Frame', 'Location', 'Rotation', 'Fov', 'Matrix']
 MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']

@@ -3,8 +3,7 @@ import os
 from bpy import context, data
 from pathlib import Path
 
-from .loader import save_camera_parameters, save_blender_image, save_camera_intrinsics
-from .csv_utils import csv_setup
+from .loader import export_view, export_matrix
 
 from math import pi, sin, cos, radians
 
@@ -19,6 +18,7 @@ PATH = Path(data.filepath).parent
 
 
 def setup_rendering_parameters():
+
     # Rendering options
     context.scene.render.use_overwrite = True
     context.scene.render.use_placeholder = True
@@ -32,12 +32,12 @@ def setup_rendering_parameters():
     context.scene.render.image_settings.use_zbuffer = True
     context.scene.render.image_settings.use_preview = False
 
-    # switch on nodes
+    # Switch on nodes
     context.scene.use_nodes = True
     tree = context.scene.node_tree
     links = tree.links
 
-    # clear default nodes
+    # Clear default nodes
     for n in tree.nodes:
         tree.nodes.remove(n)
 
@@ -50,37 +50,38 @@ def setup_rendering_parameters():
 
 
 def render(model, samples, training=False):
-    name = 'Training' if training else 'Test'
 
+    name = 'Training' if training else 'Test'
     camera_name = name + '_Camera'
 
     try:
         camera = context.scene.objects[camera_name]
-        print("Using camera found in current scene\n")
+        print("Camera found in current scene\n")
 
     except KeyError:
         camera = camera_utils.setup_camera(name=camera_name, location=(0, 0, 0))
 
-    camera_file = open(os.path.join(PATH, name, model.name, 'camera_calibration.csv'), 'w')
-    save_camera_intrinsics(camera_file)
-
-    frames_file = open(os.path.join(PATH, name, model.name, 'frames.csv'), 'w')
-    writer = csv_setup(frames_file, parameters.CAMERA_FILE_HEADER)
+    camera_file = open(os.path.join(PATH, name, model.name, 'camera_intrinsics.csv'), 'w')
+    intrinsics = camera_utils.get_intrinsics_matrix()
+    export_matrix(intrinsics, camera_file)
 
     for i in range(samples):
 
+        # Generate semi random positions
         angle = 2 * pi * i / samples + camera_utils.noise(radians(parameters.YAW_NOISE))
         distance = parameters.DISTANCE + camera_utils.noise(2 * parameters.DISTANCE_NOISE)
-        height = min(model.location[2], 1) + camera_utils.noise(parameters.HEIGHT_NOISE)
+        height = model.location[2] + camera_utils.noise(parameters.HEIGHT_NOISE)
 
         x = distance * cos(angle)
         y = distance * sin(angle)
         z = height
 
-        camera_utils.move_camera(camera, (x, y, z), model)
+        camera_utils.move_camera(camera, (x, y, z), target=model)
 
-        file_path = os.path.join(PATH, name, model.name, str(i + 1))
-        save_blender_image(camera, file_path)
-        save_camera_parameters(i + 1, camera, writer, frames_file)
+        export_view(camera, os.path.join(PATH, name, model.name, str(i + 1)))
+
+        frame_file = open(os.path.join(PATH, name, model.name, str(i+1) + '_pose.csv'), 'w')
+        pose_matrix = camera_utils.get_pose_matrix(camera)
+        export_matrix(pose_matrix, frame_file)
 
     print(name + ' set completed Successfully\n\n')

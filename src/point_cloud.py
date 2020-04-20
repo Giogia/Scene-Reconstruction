@@ -120,7 +120,7 @@ def generate_point_cloud(name):
             if not os.path.exists(intermediate_model_directory):
                 os.makedirs(intermediate_model_directory)
 
-            array = exr_to_array(rendering_path)
+            array = exr_to_image(rendering_path)
             depth = exr_to_depth(rendering_path)
             point_cloud = image_to_point_cloud(array, depth)
 

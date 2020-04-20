@@ -23,18 +23,18 @@ def setup_camera(name, location):
     return camera
 
 
-def move_camera(camera, position, model):
+def move_camera(camera, position, target):
     camera.location = position
-    look_at_model(camera, model)
+    look_at_model(camera, target)
 
 
 def set_fov(camera, fov):
     camera.data.angle = radians(fov)
 
 
-def look_at_model(camera, model):
+def look_at_model(camera, target):
     camera.rotation_mode = 'QUATERNION'
-    looking_direction = Vector(camera.location) - Vector(model.location)
+    looking_direction = Vector(camera.location) - Vector(target.location)
     camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
     camera.rotation_mode = 'XYZ'
 
@@ -43,8 +43,7 @@ def noise(value):
     return value * (random() - 0.5)
 
 
-def get_calibration_matrix():
-
+def get_intrinsics_matrix():
     camera = data.cameras['Camera']  # Camera corresponding to Test_Camera or Training_Camera
 
     scene = context.scene
@@ -64,16 +63,17 @@ def get_calibration_matrix():
     alpha_u = focal_length * resolution_x / sensor_width
     alpha_v = focal_length * resolution_y / sensor_height * aspect_ratio
 
-    u_0 = resolution_x * scale / 2
-    v_0 = resolution_y * scale / 2
+    u_0 = resolution_x / 2
+    v_0 = resolution_y / 2
 
-    return [alpha_u, 0,       u_0,
-            0,       alpha_v, v_0,
-            0,       0,       1]
+    matrix = [alpha_u, 0, u_0,
+              0, alpha_v, v_0,
+              0,       0,   1]
+
+    return np.reshape(matrix, (3, 3))
 
 
 def get_pose_matrix(camera):
-
     position = camera.location
     rotation = camera.rotation_euler
 
@@ -83,4 +83,6 @@ def get_pose_matrix(camera):
     # print('Position', position, '\n')
     # print('Rotation', rotation, '\n')
 
-    return np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))
+    matrix = np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))
+
+    return np.reshape(matrix, (4,4))

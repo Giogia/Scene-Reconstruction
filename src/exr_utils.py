@@ -4,7 +4,7 @@ from PIL import Image
 from OpenEXR import InputFile
 
 
-def exr_to_array(path):
+def exr_to_image(path):
     file = InputFile(path)
     window = file.header()['dataWindow']
     channels = ('R', 'G', 'B')
@@ -37,8 +37,8 @@ def encode_to_srgb(image_array):
                     (1 + a) * pow(image_array, 1 / 2.4) - a)
 
 
-def exr_to_image(path):
-    exr_array = exr_to_array(path)
+def exr_to_pil_image(path):
+    exr_array = exr_to_image(path)
     srgb_array = encode_to_srgb(exr_array) * 255
 
     return Image.fromarray(srgb_array.astype('uint8'), 'RGB')
