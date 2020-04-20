@@ -13,7 +13,7 @@ from visualization import show_array
 
 def fuse(name):
 
-    path = os.path.join(os.getcwd(), '../test', name)
+    path = os.path.join(os.getcwd(), '../data', name)
 
     print("Estimating voxel volume bounds...")
     images = TEST_SAMPLES
@@ -84,4 +84,5 @@ def fuse(name):
     # fusion.pcwrite("pc.ply", point_cloud)
 
 
-fuse('Fly')
+fuse('Brain'
+     '')

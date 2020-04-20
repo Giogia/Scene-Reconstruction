@@ -14,15 +14,11 @@ PATH = Path(data.filepath).parent
 
 
 def create_directory(name):
-    training_directory = os.path.join(PATH, 'training', name)
 
-    if not os.path.exists(training_directory):
-        os.makedirs(training_directory)
+    data_directory = os.path.join(PATH, 'data', name)
 
-    test_directory = os.path.join(PATH, 'test', name)
-
-    if not os.path.exists(test_directory):
-        os.makedirs(test_directory)
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
 
 
 def import_model(name, extension='obj'):
@@ -38,13 +34,13 @@ def import_model(name, extension='obj'):
 def save_model(model, extension='obj'):
 
     """ Save model parameters
-    file = open(os.path.join(PATH, 'test', model.name, 'model.csv'), 'w')
+    file = open(os.path.join(PATH, 'data', model.name, 'model.csv'), 'w')
     save_model_parameters(model, file)
     """
 
     # Generate Mesh
     context.view_layer.objects.active = model
-    groundtruth_directory = os.path.join(PATH, 'test', model.name, 'groundtruth')
+    groundtruth_directory = os.path.join(PATH, 'data', model.name, 'groundtruth')
 
     if not os.path.exists(groundtruth_directory):
         os.makedirs(groundtruth_directory)

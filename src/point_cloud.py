@@ -108,9 +108,9 @@ def generate_point_cloud(name):
 
         print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(TEST_SAMPLES), end=' ')
 
-        rendering_path = os.path.join(PATH, '../test', name, str(i+1) + '.exr')
+        rendering_path = os.path.join(PATH, '../data', name, str(i+1) + '.exr')
 
-        intermediate_model_directory = os.path.join(PATH, '../test', name, 'intermediate_models')
+        intermediate_model_directory = os.path.join(PATH, '../data', name, 'intermediate_models')
         intermediate_model_path = os.path.join(intermediate_model_directory, str(i+1) + '.ply')
 
         if os.path.exists(intermediate_model_path):
@@ -124,7 +124,7 @@ def generate_point_cloud(name):
             depth = exr_to_depth(rendering_path)
             point_cloud = image_to_point_cloud(array, depth)
 
-            file = os.path.join(PATH, '../test', name, 'frames.csv')
+            file = os.path.join(PATH, '../data', name, 'frames.csv')
 
             location = read_csv(file=file, field='Location', row_number=i)
             rotation = read_csv(file=file, field='Rotation', row_number=i)
@@ -144,7 +144,7 @@ def generate_point_cloud(name):
     final_point_cloud.colors = o3d.utility.Vector3dVector(np.concatenate(final_colors, axis=0))
     point_cloud.estimate_normals()
 
-    output_path = os.path.join(PATH, '../test', name, 'model.ply')
+    output_path = os.path.join(PATH, '../data', name, 'model.ply')
 
     o3d.io.write_point_cloud(output_path, final_point_cloud)
 
@@ -155,10 +155,10 @@ def generate_point_cloud(name):
 
 def generate_point_cloud_groundtruth():
 
-    mesh = o3d.io.read_triangle_mesh(os.path.join(PATH, '../test', 'Fox', 'groundtruth.ply'))
+    mesh = o3d.io.read_triangle_mesh(os.path.join(PATH, '../data', 'Fox', 'groundtruth.ply'))
     point_cloud = mesh_to_point_cloud(mesh)
 
-    output_path = os.path.join(PATH, '../test', 'Fox', 'groundtruth_point_cloud.ply')
+    output_path = os.path.join(PATH, '../data', 'Fox', 'groundtruth_point_cloud.ply')
     o3d.io.write_point_cloud(output_path, point_cloud)
 
     return point_cloud
