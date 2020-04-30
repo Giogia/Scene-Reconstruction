@@ -62,8 +62,8 @@ class Renderer:
 
             # Generate semi random positions
             angle = 2 * pi * i / samples + noise(radians(parameters.YAW_NOISE))
-            distance = parameters.DISTANCE + noise(2 * parameters.DISTANCE_NOISE)
-            height = abs(model.location[2] + noise(parameters.HEIGHT_NOISE))
+            distance = parameters.DISTANCE + noise(parameters.DISTANCE_NOISE)
+            height = model.location[2] + 2 * abs(noise(parameters.HEIGHT_NOISE))
 
             x = distance * cos(angle)
             y = distance * sin(angle)

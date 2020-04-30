@@ -34,7 +34,7 @@ class Scene:
         if reset:
             self.clear_scene()
             self.add_lights()
-            self.add_plane()
+            # self.add_plane()
             self.add_model(name)
 
     def clear_scene(self):

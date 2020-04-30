@@ -30,16 +30,14 @@ def main():
         if os.path.isdir(os.path.join(PATH, 'models', folder)):
 
             models = os.listdir(os.path.join(PATH, 'models', folder))
-
             for model in models:
                 if model.endswith('.obj'):
 
                     name = os.path.splitext(model)[0]
-
                     if name not in parameters.MODELS:
                         break
 
-                    model = Scene(name).model
+                    model = Scene(name, reset=True).model
                     path = os.path.join(PATH, 'data', model.name)
 
                     # Render
