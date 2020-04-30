@@ -1,31 +1,26 @@
 # MODEL SETTINGS
+MODELS = ['Brain']
 POLY_NUMBER = 250
 SCALE = 1/10
 
 # CAMERAS SETTINGS
+CAMERAS_NUMBER = 8
 DISTANCE = 5
 HEIGHT = 1.5
 FOV = 35
 NEAR_PLANE = 0.1
 FAR_PLANE = 5 * DISTANCE
 
-DISTANCE_NOISE: float = 3  # meters
-HEIGHT_NOISE: float = 2  # meters
-
-YAW_NOISE: float = 10  # degrees
-FOV_NOISE: float = 10  # degrees
-
 # RENDERING SETTINGS
 OUTPUT_RESOLUTION = 10  # percentage
 START_FRAME = 0
 END_FRAME = 250
 
-# TRAINING SETTINGS
-TRAINING_SAMPLES = 100
+DISTANCE_NOISE: float = 3  # meters
+HEIGHT_NOISE: float = 2  # meters
 
-# TEST SETTINGS
-TEST_SAMPLES = 8
-
+YAW_NOISE: float = 10  # degrees
+FOV_NOISE: float = 10  # degrees
 
 # FILE SETTINGS
 MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']

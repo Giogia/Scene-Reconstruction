@@ -2,12 +2,10 @@ from math import degrees
 from bpy import context, ops, data
 import os
 from pathlib import Path
+
 from .parameters import MODEL_FILE_HEADER
-from . import camera_utils
-from importlib import reload
 from .csv_utils import csv_setup
 
-reload(camera_utils)
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
@@ -21,7 +19,7 @@ def create_directory(name):
         os.makedirs(data_directory)
 
 
-def import_model(name, extension='obj'):
+def import_mesh(name, extension='obj'):
     model_path = os.path.join(PATH, 'models', name, name + '.' + extension)
 
     if extension == 'fbx':
@@ -31,7 +29,7 @@ def import_model(name, extension='obj'):
         ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
 
 
-def save_model(model, extension='obj'):
+def export_mesh(model, extension='obj'):
 
     """ Save model parameters
     file = open(os.path.join(PATH, 'data', model.name, 'model.csv'), 'w')
@@ -54,13 +52,9 @@ def save_model(model, extension='obj'):
         ops.export_scene.obj(filepath=filepath)
 
 
-def export_view(camera, file_path):
-    context.scene.render.filepath = file_path
-    context.scene.camera = camera
-    ops.render.render(animation=False, write_still=True)
+def export_model_parameters(model, path, name):
 
-
-def save_model_parameters(model, file):
+    file = open(os.path.join(path, name + '.csv'), 'w')
     writer = csv_setup(file, MODEL_FILE_HEADER)
 
     location = [coordinate for coordinate in model.location]
@@ -72,8 +66,14 @@ def save_model_parameters(model, file):
     file.flush()
 
 
-def export_matrix(matrix, file):
+def export_view(file_path):
+    context.scene.render.filepath = file_path
+    ops.render.render(animation=False, write_still=True)
 
+
+def export_matrix(matrix, path, name):
+
+    file = open(os.path.join(path, name + '.csv'), 'w')
     writer = csv_setup(file)
 
     [writer.writerow(row) for row in matrix]

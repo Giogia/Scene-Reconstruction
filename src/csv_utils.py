@@ -2,7 +2,7 @@ import csv
 from ast import literal_eval
 
 
-def read_csv(file, field=None, row_number=0):
+def read_csv(file):
     reader = csv.reader(open(file))
 
     data = []

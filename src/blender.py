@@ -4,21 +4,24 @@ from pathlib import Path
 from bpy import data
 from importlib import reload
 
-from . import scene, render_utils, parameters
+from . import scene, camera, renderer, parameters
+
+reload(scene)
+reload(camera)
+reload(renderer)
+reload(parameters)
+
+from .scene import Scene
+from .camera import Camera
+from .renderer import Renderer
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
 
 sys.path.append(os.path.dirname(data.filepath))
 
-NAMES = ['Brain']
-
 
 def main():
-
-    reload(scene)
-    reload(render_utils)
-    reload(parameters)
 
     # Explore directory and run for every model in models
     models_directory = os.listdir(os.path.join(PATH, 'models'))
@@ -33,16 +36,17 @@ def main():
 
                     name = os.path.splitext(model)[0]
 
-                    if name not in NAMES:
+                    if name not in parameters.MODELS:
                         break
 
-                    model = scene.setup_scene(name)
+                    model = Scene(name).model
+                    path = os.path.join(PATH, 'data', model.name)
 
                     # Render
-                    render_utils.setup_rendering_parameters()
+                    camera = Camera()
+                    renderer = Renderer()
+                    renderer.render(camera, model, path)
 
-                    # render(model, TRAINING_SAMPLES, training=True)
-                    render_utils.render(model, parameters.TEST_SAMPLES)
 
 
 

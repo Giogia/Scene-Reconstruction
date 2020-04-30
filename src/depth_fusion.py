@@ -40,7 +40,7 @@ def fuse(name):
         bounds[:, 1] = np.maximum(bounds[:, 1], np.amax(frustum_points, axis=1))
 
     print("Initializing voxel volume...")
-    tsdf_volume = TSDFVolume(bounds, voxel_size=0.05)
+    tsdf_volume = TSDFVolume(bounds, voxel_size=0.01)
 
     # Loop through RGB-D images and fuse them together
     t0_elapse = time.time()
