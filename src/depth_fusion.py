@@ -4,7 +4,7 @@ import numpy as np
 
 from csv_utils import read_csv
 from exr_utils import exr_to_depth, exr_to_image
-from parameters import TEST_SAMPLES, DISTANCE
+from parameters import CAMERAS_NUMBER, DISTANCE
 
 from tsdf_fusion import get_view_frustum, TSDFVolume, meshwrite
 
@@ -16,9 +16,9 @@ def fuse(name):
     path = os.path.join(os.getcwd(), '../data', name)
 
     print("Estimating voxel volume bounds...")
-    images = TEST_SAMPLES
+    images = CAMERAS_NUMBER
 
-    camera_intrinsics_file = os.path.join(path, 'camera_intrinsics.csv')
+    camera_intrinsics_file = os.path.join(path, 'camera_intrinsic.csv')
     camera_intrinsics = np.reshape(read_csv(file=camera_intrinsics_file), (3, 3))
 
     bounds = np.zeros((3, 2))

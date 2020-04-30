@@ -37,12 +37,12 @@ def main():
                     if name not in parameters.MODELS:
                         break
 
-                    model = Scene(name, reset=True).model
-                    path = os.path.join(PATH, 'data', model.name)
-
                     # Render
+                    scene = Scene(name, reset=True)
+                    model = scene.model
                     camera = Camera()
                     renderer = Renderer()
+                    path = os.path.join(PATH, 'data', model.name)
                     renderer.render(camera, model, path)
 
 

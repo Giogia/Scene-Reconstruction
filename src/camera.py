@@ -83,4 +83,6 @@ class Camera:
 
         matrix = np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))
 
-        return np.reshape(matrix, (4,4))
+        # return np.reshape(matrix, (4,4))
+
+        return self.camera.matrix_world

@@ -3,7 +3,7 @@ from bpy import context
 from math import pi, sin, cos, radians
 from random import random
 
-from .loader import export_view, export_matrix
+from .loader import export_view, export_matrix, export_model_parameters
 from . import parameters
 from importlib import reload
 
@@ -55,15 +55,17 @@ class Renderer:
 
         # export intrinsic parameters
         intrinsic = camera.get_intrinsics_matrix()
-        export_matrix(intrinsic, path, 'camera_intrinsics')
+        export_matrix(intrinsic, path, 'camera_intrinsic')
+
+        export_model_parameters(model, path, 'model')
 
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
 
             # Generate semi random positions
-            angle = 2 * pi * i / samples + noise(radians(parameters.YAW_NOISE))
-            distance = parameters.DISTANCE + noise(parameters.DISTANCE_NOISE)
-            height = model.location[2] + 2 * abs(noise(parameters.HEIGHT_NOISE))
+            angle = 2 * pi * i / samples  # + noise(radians(parameters.YAW_NOISE))
+            distance = parameters.DISTANCE  # + noise(parameters.DISTANCE_NOISE)
+            height = model.location[2] + 2  # * abs(noise(parameters.HEIGHT_NOISE))
 
             x = distance * cos(angle)
             y = distance * sin(angle)

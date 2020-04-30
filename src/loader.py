@@ -1,8 +1,10 @@
 from math import degrees
 from bpy import context, ops, data
+import numpy as np
 import os
 from pathlib import Path
 
+from .matrix_utils import scale_matrix, rotate_matrix, translate_matrix
 from .parameters import MODEL_FILE_HEADER
 from .csv_utils import csv_setup
 
@@ -54,16 +56,12 @@ def export_mesh(model, extension='obj'):
 
 def export_model_parameters(model, path, name):
 
-    file = open(os.path.join(path, name + '.csv'), 'w')
-    writer = csv_setup(file, MODEL_FILE_HEADER)
+    location_matrix = translate_matrix([coordinate for coordinate in model.location])
+    rotation_matrix = rotate_matrix([degrees(angle) for angle in model.rotation_euler])
 
-    location = [coordinate for coordinate in model.location]
-    rotation = [degrees(angle) for angle in model.rotation_euler]
-    scale = [scale for scale in model.scale]
-    dimensions = [dimension for dimension in model.dimensions]
+    matrix = np.matmul(location_matrix, rotation_matrix)
 
-    writer.writerow([model.name, location, rotation, scale, dimensions])
-    file.flush()
+    export_matrix(matrix, path, name)
 
 
 def export_view(file_path):
