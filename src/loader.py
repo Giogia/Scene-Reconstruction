@@ -13,9 +13,16 @@ from .csv_utils import csv_setup
 PATH = Path(data.filepath).parent
 
 
-def create_directory(name):
-
+def create_model_directory(name):
     data_directory = os.path.join(PATH, 'data', name)
+
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
+
+
+def create_camera_directory(model_name, camera_name):
+
+    data_directory = os.path.join(PATH, 'data', model_name, camera_name)
 
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)

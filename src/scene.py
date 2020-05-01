@@ -2,9 +2,9 @@ from bpy import context, ops, data
 import os
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from importlib import reload
-from . import loader, parameters
+from .loader import create_model_directory, import_mesh
+from . import parameters
 
-reload(loader)
 reload(parameters)
 
 
@@ -22,7 +22,7 @@ class Scene:
     def __init__(self, name, reset=False):
 
         print('Setup the scene for the following model:' + name + '\n')
-        loader.create_directory(name)
+        create_model_directory(name)
 
         try:
             self.model = context.scene.objects[name]
@@ -67,7 +67,7 @@ class Scene:
     def add_model(self, name):
 
         with suppress_stdout_stderr():
-            loader.import_mesh(name)
+            import_mesh(name)
 
         self.model = data.objects[name]
         self.model.scale = [parameters.SCALE, parameters.SCALE, parameters.SCALE]

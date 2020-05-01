@@ -3,7 +3,7 @@ from bpy import context
 from math import pi, sin, cos, radians
 from random import random
 
-from .loader import export_view, export_matrix, export_model_parameters
+from .loader import export_view, export_matrix, export_model_parameters, create_camera_directory
 from . import parameters
 from importlib import reload
 
@@ -31,7 +31,7 @@ class Renderer:
         self.settings.image_settings.use_preview = False
 
         self.scene.frame_start = parameters.START_FRAME
-        self.scene.frame_end = parameters.END_FRAME - 1
+        self.scene.frame_end = parameters.END_FRAME
 
         # Switch on nodes
         self.scene.use_nodes = True
@@ -62,6 +62,10 @@ class Renderer:
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
 
+            camera_name = 'camera_' + str(i+1)
+
+            create_camera_directory(model.name, camera_name)
+
             # Generate semi random positions
             angle = 2 * pi * i / samples  # + noise(radians(parameters.YAW_NOISE))
             distance = parameters.DISTANCE  # + noise(parameters.DISTANCE_NOISE)
@@ -71,12 +75,15 @@ class Renderer:
             y = distance * sin(angle)
             z = height
 
-            # export camera views
             camera.move_to((x, y, z), target=model)
-            export_view(os.path.join(path, str(i + 1)))
 
-            # export camera pose
-            pose_matrix = camera.get_pose_matrix()
-            export_matrix(pose_matrix, path, str(i+1) + '_pose')
+            # export camera views
+            for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
+                self.scene.frame_set(frame)
+                export_view(os.path.join(path, camera_name, str(frame)))
+
+                # export camera pose
+                pose_matrix = camera.get_pose_matrix()
+                export_matrix(pose_matrix, os.path.join(path, camera_name), str(frame) + '_pose')
 
         print('View extraction completed Successfully\n\n')

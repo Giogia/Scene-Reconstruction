@@ -21,8 +21,8 @@ FOV_NOISE: float = 10  # degrees
 OUTPUT_RESOLUTION = 10  # percentage
 
 # ANIMATION SETTINGS
-START_FRAME = 0
-END_FRAME = 250
+START_FRAME = 1
+END_FRAME = 1
 
 # FILE SETTINGS
 MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']

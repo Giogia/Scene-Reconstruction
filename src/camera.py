@@ -32,9 +32,10 @@ class Camera:
 
         return camera
 
-    def move_to(self, position, target):
+    def move_to(self, position, target=None):
         self.camera.location = position
-        self.look_at_model(target)
+        if target:
+            self.look_at_model(target)
 
     def look_at_model(self, target):
         self.camera.rotation_mode = 'QUATERNION'
