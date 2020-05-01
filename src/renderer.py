@@ -77,6 +77,11 @@ class Renderer:
 
             camera.move_to((x, y, z), target=model)
 
+            # export background
+            model.hide_render = True
+            export_view(os.path.join(path, camera_name, 'background'))
+            model.hide_render = False
+
             # export camera views
             for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
                 self.scene.frame_set(frame)
