@@ -82,8 +82,8 @@ class Renderer:
                 self.scene.frame_set(frame)
                 export_view(os.path.join(path, camera_name, str(frame)))
 
-                # export camera pose
-                pose_matrix = camera.get_pose_matrix()
-                export_matrix(pose_matrix, os.path.join(path, camera_name), str(frame) + '_pose')
+            # export camera pose
+            pose_matrix = camera.get_pose_matrix()
+            export_matrix(pose_matrix, os.path.join(path, camera_name), 'pose')
 
         print('View extraction completed Successfully\n\n')
