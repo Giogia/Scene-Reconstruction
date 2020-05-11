@@ -34,6 +34,7 @@ class Renderer:
 
         self.scene.frame_start = parameters.START_FRAME
         self.scene.frame_end = parameters.END_FRAME
+        self.scene.world.node_tree.nodes["Background"].inputs[0].default_value = (0.5, 0.5, 0.5, 1.0)
 
         # Switch on nodes
         self.scene.use_nodes = True
