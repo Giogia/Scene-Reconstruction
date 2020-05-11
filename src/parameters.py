@@ -26,6 +26,3 @@ OUTPUT_RESOLUTION = 100  # percentage
 # ANIMATION SETTINGS
 START_FRAME = 150
 END_FRAME = 250
-
-# FILE SETTINGS
-MODEL_FILE_HEADER = ['Name', 'Location', 'Rotation', 'Scale', 'Dimensions']
