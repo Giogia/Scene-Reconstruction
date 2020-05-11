@@ -1,5 +1,5 @@
 from math import radians, degrees
-from mathutils import Vector
+from mathutils import Vector, Matrix
 from bpy import context, ops, data
 import numpy as np
 
@@ -58,10 +58,10 @@ class Camera:
         sensor_width = camera.sensor_width
         sensor_height = camera.sensor_height
 
-        aspect_ratio = scene.render.pixel_aspect_x / scene.render.pixel_aspect_y
+        pixel_aspect_ratio = scene.render.pixel_aspect_x / scene.render.pixel_aspect_y
 
         alpha_u = focal_length * resolution_x / sensor_width
-        alpha_v = focal_length * resolution_y / sensor_height * aspect_ratio
+        alpha_v = focal_length * resolution_y / sensor_height * pixel_aspect_ratio
 
         u_0 = resolution_x / 2
         v_0 = resolution_y / 2
@@ -73,17 +73,26 @@ class Camera:
         return np.reshape(matrix, (3, 3))
 
     def get_pose_matrix(self):
-        position = self.camera.location
-        rotation = self.camera.rotation_euler
 
-        position = [position[1], - position[2], - position[0]]
-        rotation = [degrees(rotation[0]) - 90, - degrees(rotation[2]) + 90, - degrees(rotation[1])]
+        location = self.camera.location
+        rotation = self.camera.rotation_quaternion
 
-        # print('Position', position)
-        # print('Rotation', rotation)
+        rotation_matrix = rotation.to_matrix().transposed()
+        location_matrix = -1 * rotation_matrix @ location
 
-        matrix = np.matmul(matrix_utils.translate_matrix(position), matrix_utils.rotate_matrix(rotation, order='YXZ'))
+        matrix = Matrix(
+            ((1, 0, 0),
+             (0, -1, 0),
+             (0, 0, -1)))
 
-        # return np.reshape(matrix, (4,4))
+        location_matrix = matrix @ location_matrix
+        rotation_matrix = matrix @ rotation_matrix
 
-        return self.camera.matrix_world
+        matrix = Matrix((
+            rotation_matrix[0][:] + (location_matrix[0],),
+            rotation_matrix[1][:] + (location_matrix[1],),
+            rotation_matrix[2][:] + (location_matrix[2],),
+            (0, 0, 0, 1)
+        ))
+
+        return np.reshape(matrix, (4, 4))
