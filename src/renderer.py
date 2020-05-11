@@ -54,7 +54,7 @@ class Renderer:
         links.new(render_node.outputs['Image'], composite_node.inputs['Image'])
         links.new(render_node.outputs['Depth'], composite_node.inputs['Z'])
 
-    def render(self, camera, model, path):
+    def render(self, camera, model, path, update_views=True):
 
         self.scene.camera = camera.camera
 
@@ -82,19 +82,20 @@ class Renderer:
 
             camera.move_to((x, y, z), target=model)
 
-            # export background
-            model.hide_render = True
-            if parameters.EXTENSION == 'fbx':
-                data.objects['Mesh'].hide_render = True
-            export_view(os.path.join(path, camera_name, 'background'))
-            model.hide_render = False
-            if parameters.EXTENSION == 'fbx':
-                data.objects['Mesh'].hide_render = False
+            if update_views:
+                # export background
+                model.hide_render = True
+                if parameters.EXTENSION == 'fbx':
+                    data.objects['Mesh'].hide_render = True
+                export_view(os.path.join(path, camera_name, 'background'))
+                model.hide_render = False
+                if parameters.EXTENSION == 'fbx':
+                    data.objects['Mesh'].hide_render = False
 
-            # export camera views
-            for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
-                self.scene.frame_set(frame)
-                export_view(os.path.join(path, camera_name, str(frame)))
+                # export camera views
+                for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
+                    self.scene.frame_set(frame)
+                    export_view(os.path.join(path, camera_name, str(frame)))
 
             # export camera pose
             pose_matrix = camera.get_pose_matrix()

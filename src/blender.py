@@ -44,7 +44,7 @@ def main():
                     renderer = Renderer()
                     path = os.path.abspath(os.path.join(PATH, os.pardir,
                                                         'Neural-Volumes', 'experiments', model.name, 'data'))
-                    renderer.render(camera, model, path)
+                    renderer.render(camera, model, path, update_views=False)
 
 
 
