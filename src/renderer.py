@@ -1,5 +1,5 @@
 import os
-from bpy import context
+from bpy import context, data
 from math import pi, sin, cos, radians
 from random import random
 
@@ -25,6 +25,8 @@ class Renderer:
         self.settings.use_placeholder = True
         self.settings.use_file_extension = True
         self.settings.resolution_percentage = parameters.OUTPUT_RESOLUTION
+        self.scene.render.resolution_x = parameters.RESOLUTION_X
+        self.scene.render.resolution_y = parameters.RESOLUTION_Y
 
         self.settings.image_settings.file_format = 'OPEN_EXR'
         self.settings.image_settings.use_zbuffer = True
@@ -41,6 +43,8 @@ class Renderer:
         # Clear default nodes
         for n in tree.nodes:
             tree.nodes.remove(n)
+
+
 
         # Basic Node configuration
         render_node = tree.nodes.new('CompositorNodeRLayers')
@@ -62,14 +66,14 @@ class Renderer:
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
 
-            camera_name = 'camera_' + str(i+1)
+            camera_name = 'camera_' + str(i + 1)
 
             create_camera_directory(model.name, camera_name)
 
             # Generate semi random positions
             angle = 2 * pi * i / samples  # + noise(radians(parameters.YAW_NOISE))
             distance = parameters.DISTANCE  # + noise(parameters.DISTANCE_NOISE)
-            height = model.location[2] + 2  # * abs(noise(parameters.HEIGHT_NOISE))
+            height = model.location[2]  # + 2 * abs(noise(parameters.HEIGHT_NOISE))
 
             x = distance * cos(angle)
             y = distance * sin(angle)
@@ -79,8 +83,12 @@ class Renderer:
 
             # export background
             model.hide_render = True
+            if parameters.EXTENSION == 'fbx':
+                data.objects['Mesh'].hide_render = True
             export_view(os.path.join(path, camera_name, 'background'))
             model.hide_render = False
+            if parameters.EXTENSION == 'fbx':
+                data.objects['Mesh'].hide_render = False
 
             # export camera views
             for frame in range(self.scene.frame_start, self.scene.frame_end + 1):

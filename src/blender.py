@@ -31,7 +31,7 @@ def main():
 
             models = os.listdir(os.path.join(PATH, 'models', folder))
             for model in models:
-                if model.endswith('.obj'):
+                if model.endswith('.' + parameters.EXTENSION):
 
                     name = os.path.splitext(model)[0]
                     if name not in parameters.MODELS:
@@ -42,7 +42,8 @@ def main():
                     model = scene.model
                     camera = Camera()
                     renderer = Renderer()
-                    path = os.path.join(PATH, 'data', model.name)
+                    path = os.path.abspath(os.path.join(PATH, os.pardir,
+                                                        'Neural-Volumes', 'experiments', model.name, 'data'))
                     renderer.render(camera, model, path)
 
 

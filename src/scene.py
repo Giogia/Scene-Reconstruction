@@ -1,4 +1,5 @@
 from bpy import context, ops, data
+from math import radians
 import os
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from importlib import reload
@@ -37,6 +38,7 @@ class Scene:
             # self.add_plane()
             self.add_model(name)
 
+
     def clear_scene(self):
         # Clear data from previous scenes
         if data:
@@ -69,12 +71,23 @@ class Scene:
         with suppress_stdout_stderr():
             import_mesh(name)
 
-        self.model = data.objects[name]
-        self.model.scale = [parameters.SCALE, parameters.SCALE, parameters.SCALE]
-        self.set_model_resolution()
-
-        context.view_layer.objects.active = self.model
+        context.view_layer.objects.active = data.objects[name]
         ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
+
+        if parameters.EXTENSION == 'obj':
+            self.model = data.objects[name]
+        if parameters.EXTENSION == 'fbx':
+            model = data.objects[name]
+            model.name = 'Mesh'
+            self.model = model.parent
+            self.model.name = name
+
+        # self.set_model_resolution()
+        self.model.scale = [parameters.SCALE, parameters.SCALE, parameters.SCALE]
+        self.model.location = [0, 0, 0]
+        self.model.rotation_euler = [radians(0), radians(0), radians(0)]
+
+        #self.model = data.objects[name]
 
     def set_model_resolution(self):
         while len(self.model.data.vertices) < parameters.POLY_NUMBER:

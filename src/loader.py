@@ -5,8 +5,11 @@ import os
 from pathlib import Path
 
 from .matrix_utils import scale_matrix, rotate_matrix, translate_matrix
-from .parameters import MODEL_FILE_HEADER
+from . import parameters
 from .csv_utils import csv_setup
+
+from importlib import reload
+reload(parameters)
 
 
 # PATH TO REPOSITORY
@@ -28,17 +31,17 @@ def create_camera_directory(model_name, camera_name):
         os.makedirs(data_directory)
 
 
-def import_mesh(name, extension='obj'):
-    model_path = os.path.join(PATH, 'models', name, name + '.' + extension)
+def import_mesh(name):
+    model_path = os.path.join(PATH, 'models', name, name + '.' + parameters.EXTENSION)
 
-    if extension == 'fbx':
+    if parameters.EXTENSION == 'fbx':
         ops.import_scene.fbx(filepath=model_path)
 
-    if extension == 'obj':
+    if parameters.EXTENSION == 'obj':
         ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
 
 
-def export_mesh(model, extension='obj'):
+def export_mesh(model):
 
     """ Save model parameters
     file = open(os.path.join(PATH, 'data', model.name, 'model.csv'), 'w')
@@ -52,19 +55,25 @@ def export_mesh(model, extension='obj'):
     if not os.path.exists(groundtruth_directory):
         os.makedirs(groundtruth_directory)
 
-    filepath = os.path.join(groundtruth_directory, 'groundtruth.' + extension)
+    filepath = os.path.join(groundtruth_directory, 'groundtruth.' + parameters.EXTENSION)
 
-    if extension == 'glb':
+    if parameters.EXTENSION == 'glb':
         ops.export_scene.gltf(filepath=filepath , export_draco_mesh_compression_enable=True)
 
-    elif extension == 'obj':
+    elif parameters.EXTENSION == 'obj':
         ops.export_scene.obj(filepath=filepath)
 
 
 def export_model_parameters(model, path, name):
 
-    location_matrix = translate_matrix([coordinate for coordinate in model.location])
-    rotation_matrix = rotate_matrix([degrees(angle) for angle in model.rotation_euler])
+    position = model.location
+    rotation = model.rotation_euler
+
+    position = [position[0], position[2], position[1]]
+    rotation = [rotation[0], rotation[2], rotation[1]]
+
+    location_matrix = translate_matrix(position)
+    rotation_matrix = rotate_matrix(rotation)
 
     matrix = np.matmul(location_matrix, rotation_matrix)
 
