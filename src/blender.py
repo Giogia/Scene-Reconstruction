@@ -37,14 +37,15 @@ def main():
                     if name not in parameters.MODELS:
                         break
 
+                    path = os.path.abspath(os.path.join(PATH, os.pardir,
+                                                        'Neural-Volumes', 'experiments', name, 'data2'))
+
                     # Render
-                    scene = Scene(name, reset=True)
+                    scene = Scene(path, name, reset=True)
                     model = scene.model
                     camera = Camera()
                     renderer = Renderer()
-                    path = os.path.abspath(os.path.join(PATH, os.pardir,
-                                                        'Neural-Volumes', 'experiments', model.name, 'data'))
-                    renderer.render(camera, model, path, update_views=False)
+                    renderer.render(camera, model, path, update_views=True)
 
 
 

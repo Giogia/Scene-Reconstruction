@@ -3,7 +3,7 @@ from math import radians
 import os
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from importlib import reload
-from .loader import create_model_directory, import_mesh
+from .loader import create_directory, import_mesh
 from . import parameters
 
 reload(parameters)
@@ -20,10 +20,10 @@ def suppress_stdout_stderr():
 
 class Scene:
 
-    def __init__(self, name, reset=False):
+    def __init__(self, path, name, reset=False):
 
         print('Setup the scene for the following model:' + name + '\n')
-        create_model_directory(name)
+        create_directory(path)
 
         try:
             self.model = context.scene.objects[name]

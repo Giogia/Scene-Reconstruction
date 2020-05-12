@@ -3,7 +3,7 @@ from bpy import context, data
 from math import pi, sin, cos, radians
 from random import random
 
-from .loader import export_view, export_matrix, export_model_parameters, create_camera_directory
+from .loader import export_view, export_matrix, export_model_parameters, create_directory
 from . import parameters
 from importlib import reload
 
@@ -69,7 +69,7 @@ class Renderer:
 
             camera_name = 'camera_' + str(i + 1)
 
-            create_camera_directory(model.name, camera_name)
+            create_directory(os.path.join(path, camera_name))
 
             # Generate semi random positions
             angle = 2 * pi * i / samples  # + noise(radians(parameters.YAW_NOISE))
