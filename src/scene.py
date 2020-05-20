@@ -1,10 +1,12 @@
-from bpy import context, ops, data
-from math import radians
 import os
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from importlib import reload
-from .loader import create_directory, import_mesh
+from math import radians
+
+from bpy import context, ops, data
+
 from . import parameters
+from .loader import create_directory, import_mesh
 
 reload(parameters)
 

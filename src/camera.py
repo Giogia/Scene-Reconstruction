@@ -1,11 +1,11 @@
-from math import radians, degrees
-from mathutils import Vector, Matrix
-from bpy import context, ops, data
+from importlib import reload
+from math import radians
+
 import numpy as np
+from bpy import context, ops, data
+from mathutils import Vector, Matrix
 
 from . import matrix_utils, parameters
-
-from importlib import reload
 
 reload(matrix_utils)
 reload(parameters)

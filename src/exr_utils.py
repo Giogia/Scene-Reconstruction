@@ -1,7 +1,7 @@
-from Imath import PixelType
 import numpy as np
-from PIL import Image
+from Imath import PixelType
 from OpenEXR import InputFile
+from PIL import Image
 
 
 def exr_to_image(path):

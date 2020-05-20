@@ -1,11 +1,12 @@
 import os
-from bpy import context, data
-from math import pi, sin, cos, radians
+from importlib import reload
+from math import pi, sin, cos
 from random import random
 
-from .loader import export_view, export_matrix, export_model_parameters, create_directory
+from bpy import context, data
+
 from . import parameters
-from importlib import reload
+from .loader import export_view, export_matrix, export_model_parameters, create_directory
 
 reload(parameters)
 
@@ -44,8 +45,6 @@ class Renderer:
         # Clear default nodes
         for n in tree.nodes:
             tree.nodes.remove(n)
-
-
 
         # Basic Node configuration
         render_node = tree.nodes.new('CompositorNodeRLayers')

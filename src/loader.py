@@ -1,14 +1,14 @@
-from math import degrees
-from bpy import context, ops, data
-import numpy as np
 import os
+from importlib import reload
 from pathlib import Path
 
-from .matrix_utils import scale_matrix, rotate_matrix, translate_matrix
+import numpy as np
+from bpy import context, ops, data
+
 from . import parameters
 from .csv_utils import csv_setup
+from .matrix_utils import rotate_matrix, translate_matrix
 
-from importlib import reload
 reload(parameters)
 
 

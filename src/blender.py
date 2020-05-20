@@ -1,8 +1,9 @@
 import os
 import sys
-from pathlib import Path
-from bpy import data
 from importlib import reload
+from pathlib import Path
+
+from bpy import data
 
 from . import scene, camera, renderer, parameters
 
@@ -45,7 +46,7 @@ def main():
                     model = scene.model
                     camera = Camera()
                     renderer = Renderer()
-                    renderer.render(camera, model, path, update_views=True)
+                    renderer.render(camera, model, path, update_views=False)
 
 
 

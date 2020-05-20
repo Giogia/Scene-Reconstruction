@@ -1,10 +1,11 @@
-import open3d as o3d
 import os
 from math import cos, sin, radians, tan
 
-from parameters import *
-from exr_utils import *
+import open3d as o3d
+
 from csv_utils import read_csv
+from exr_utils import *
+from parameters import *
 
 PATH = os.getcwd()
 
@@ -104,9 +105,9 @@ def generate_point_cloud(name):
     final_model = []
     final_colors = []
 
-    for i in range(TEST_SAMPLES):
+    for i in range(CAMERAS_NUMBER):
 
-        print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(TEST_SAMPLES), end=' ')
+        print('\r', 'Analysing Models: ' + str(i+1) + '/' + str(CAMERAS_NUMBER), end=' ')
 
         rendering_path = os.path.join(PATH, '../data', name, str(i+1) + '.exr')
 

@@ -1,13 +1,12 @@
-import time
 import os
+import time
+
 import numpy as np
 
 from csv_utils import read_csv
 from exr_utils import exr_to_depth, exr_to_image
 from parameters import CAMERAS_NUMBER, DISTANCE
-
 from tsdf_fusion import get_view_frustum, TSDFVolume, meshwrite
-
 from visualization import show_array
 
 
