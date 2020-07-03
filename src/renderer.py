@@ -83,13 +83,13 @@ class Renderer:
 
             if update_views:
                 # export background
-                model.hide_render = True
-                if parameters.EXTENSION == 'fbx':
-                    data.objects['Mesh'].hide_render = True
+                for obj in data.objects:
+                    obj.hide_render = True
+
                 export_view(os.path.join(path, camera_name, 'background'))
-                model.hide_render = False
-                if parameters.EXTENSION == 'fbx':
-                    data.objects['Mesh'].hide_render = False
+
+                for obj in data.objects:
+                    obj.hide_render = False
 
                 # export camera views
                 for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
