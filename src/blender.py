@@ -39,14 +39,14 @@ def main():
                         break
 
                     path = os.path.abspath(os.path.join(PATH, os.pardir,
-                                                        'Neural-Volumes', 'experiments', name, 'data2'))
+                                                        'Neural-Volumes', 'experiments', name, 'data'))
 
                     # Render
                     scene = Scene(path, name, reset=True)
                     model = scene.model
                     camera = Camera()
                     renderer = Renderer()
-                    renderer.render(camera, model, path, update_views=False)
+                    renderer.render(camera, model, path, update_views=True)
 
 
 

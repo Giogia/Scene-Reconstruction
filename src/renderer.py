@@ -28,8 +28,11 @@ class Renderer:
         self.settings.resolution_percentage = parameters.OUTPUT_RESOLUTION
         self.scene.render.resolution_x = parameters.RESOLUTION_X
         self.scene.render.resolution_y = parameters.RESOLUTION_Y
+        self.scene.render.use_file_extension = True
+        self.scene.render.use_placeholder = True
 
         self.settings.image_settings.file_format = 'OPEN_EXR'
+        self.settings.image_settings.color_depth = '16'
         self.settings.image_settings.use_zbuffer = True
         self.settings.image_settings.use_preview = False
 
@@ -73,7 +76,7 @@ class Renderer:
             # Generate semi random positions
             angle = 2 * pi * i / samples  # + noise(radians(parameters.YAW_NOISE))
             distance = parameters.DISTANCE  # + noise(parameters.DISTANCE_NOISE)
-            height = model.location[2]  # + 2 * abs(noise(parameters.HEIGHT_NOISE))
+            height = parameters.HEIGHT  # + 2 * abs(noise(parameters.HEIGHT_NOISE))
 
             x = distance * cos(angle)
             y = distance * sin(angle)
