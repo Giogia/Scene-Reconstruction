@@ -6,6 +6,7 @@ from math import radians
 from bpy import context, ops, data
 
 from . import parameters
+
 from .loader import create_directory, import_mesh
 
 reload(parameters)
@@ -22,7 +23,7 @@ def suppress_stdout_stderr():
 
 class Scene:
 
-    def __init__(self, path, name, reset=False):
+    def __init__(self, path, name, file_name, reset=False):
 
         print('Setup the scene for the following model:' + name + '\n')
         create_directory(path)
@@ -32,14 +33,12 @@ class Scene:
             print('Model found in current scene\n')
 
         except KeyError:
-            reset = True
+            print('Added ' + name + ' model\n')
+            self.add_model(name, file_name)
 
         if reset:
             self.clear_scene()
             self.add_lights()
-            # self.add_plane()
-            self.add_model(name)
-
 
     def clear_scene(self):
         # Clear data from previous scenes
@@ -62,37 +61,21 @@ class Scene:
     def add_lights(self):
         ops.object.light_add(type='SUN', radius=1,
                              location=(parameters.DISTANCE / 4, parameters.DISTANCE / 8, parameters.DISTANCE / 2))
-        context.active_object.data.energy = 3.00
+        context.active_object.data.energy = 3.0
 
     def add_plane(self):
         ops.mesh.primitive_circle_add(vertices=128, radius=2 * parameters.DISTANCE, fill_type='NGON',
                                       location=(0, 0, 0))
 
-    def add_model(self, name):
+    def add_model(self, name, file_name):
 
         with suppress_stdout_stderr():
-            import_mesh(name)
+            import_mesh(name, file_name)
 
+        '''
+        context.selected_objects[0].name = name
         context.view_layer.objects.active = data.objects[name]
         ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
+        '''
 
-        if parameters.EXTENSION == 'obj':
-            self.model = data.objects[name]
-        if parameters.EXTENSION == 'fbx':
-            model = data.objects[name]
-            model.name = 'Mesh'
-            self.model = model.parent
-            self.model.name = name
-
-        # self.set_model_resolution()
-        self.model.scale = [parameters.SCALE, parameters.SCALE, parameters.SCALE]
-        self.model.location = [0, 0, 0]
-        self.model.rotation_euler = [radians(0), radians(0), radians(0)]
-
-        #self.model = data.objects[name]
-
-    def set_model_resolution(self):
-        while len(self.model.data.vertices) < parameters.POLY_NUMBER:
-            ops.object.modifier_add(type='MULTIRES')
-            ops.object.multires_subdivide(modifier='Multires')
-            ops.object.modifier_apply(apply_as='DATA', modifier='Multires')
+        self.model = data.objects[name]

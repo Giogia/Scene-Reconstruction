@@ -1,5 +1,5 @@
 # MODEL SETTINGS
-MODELS = ['Fox']
+MODELS = ['Carla', 'Claudia', 'Eric']
 EXTENSION = 'fbx'
 POLY_NUMBER = 250
 SCALE = 0.1

@@ -22,11 +22,11 @@ def create_directory(path):
         os.makedirs(path)
 
 
-def import_mesh(name):
-    model_path = os.path.join(PATH, 'models', name, name + '.' + parameters.EXTENSION)
+def import_mesh(name, file_name):
+    model_path = os.path.join(PATH, 'models', name, file_name + '.' + parameters.EXTENSION)
 
     if parameters.EXTENSION == 'fbx':
-        ops.import_scene.fbx(filepath=model_path)
+        ops.import_scene.fbx(filepath=model_path, ignore_leaf_bones=True)
 
     if parameters.EXTENSION == 'obj':
         ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
