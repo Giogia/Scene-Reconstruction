@@ -17,7 +17,7 @@ class Camera:
 
         try:
             self.camera = context.scene.objects['Camera']
-            print("Camera found in current scene\n")
+            # print("Camera found in current scene\n")
 
         except KeyError:
             self.camera = self.create_camera(name='Camera', location=(0, 0, 0))

@@ -3,7 +3,7 @@ from importlib import reload
 from math import pi, sin, cos
 from random import random
 
-from bpy import context, data
+from bpy import context, data, ops
 
 from . import parameters
 from .loader import export_view, export_matrix, export_model_parameters, create_directory
@@ -92,15 +92,28 @@ class Renderer:
                 export_view(os.path.join(path, camera_name, 'background'))
 
                 for obj in data.objects:
-                    obj.hide_render = False
+                    if model.name.lower() in obj.name:
+                        obj.hide_render = False
 
                 # export camera views
                 for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
                     self.scene.frame_set(frame)
                     export_view(os.path.join(path, camera_name, str(frame)))
 
+                for obj in data.objects:
+                    obj.hide_render = False
+
             # export camera pose
             pose_matrix = camera.get_pose_matrix()
             export_matrix(pose_matrix, os.path.join(path, camera_name), 'pose')
 
         print('View extraction completed Successfully\n\n')
+
+    def retarget(self, model, animation):
+
+        self.scene.rsl_retargeting_armature_source = animation
+        self.scene.rsl_retargeting_armature_target = model
+
+        ops.rsl.build_bone_list()
+        ops.rsl.retarget_animation()
+

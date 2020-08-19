@@ -32,6 +32,11 @@ def import_mesh(name, file_name):
         ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
 
 
+def import_animation(name):
+    animation_path = os.path.join(PATH, 'animations', name + '.fbx')
+    ops.import_scene.fbx(filepath=animation_path, ignore_leaf_bones=True)
+
+
 def export_mesh(model):
 
     """ Save model parameters

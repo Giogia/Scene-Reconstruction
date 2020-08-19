@@ -7,7 +7,7 @@ from bpy import context, ops, data
 
 from . import parameters
 
-from .loader import create_directory, import_mesh
+from .loader import create_directory, import_mesh, import_animation
 
 reload(parameters)
 
@@ -25,20 +25,26 @@ class Scene:
 
     def __init__(self, path, name, file_name, reset=False):
 
-        print('Setup the scene for the following model:' + name + '\n')
+        print('Setup model: ' + name + '\n')
         create_directory(path)
-
-        try:
-            self.model = context.scene.objects[name]
-            print('Model found in current scene\n')
-
-        except KeyError:
-            print('Added ' + name + ' model\n')
-            self.add_model(name, file_name)
+        self.animations = []
 
         if reset:
             self.clear_scene()
             self.add_lights()
+
+        try:
+            self.model = context.scene.objects[name]
+        except KeyError:
+            print('Added ' + name + ' model\n')
+            self.add_model(name, file_name)
+
+        for animation in parameters.ANIMATIONS:
+            try:
+                self.animations.append(context.scene.objects[animation])
+            except KeyError:
+                print('Added ' + animation + ' animation\n')
+                self.add_animation(animation)
 
     def clear_scene(self):
         # Clear data from previous scenes
@@ -72,10 +78,19 @@ class Scene:
         with suppress_stdout_stderr():
             import_mesh(name, file_name)
 
-        '''
         context.selected_objects[0].name = name
+        '''
         context.view_layer.objects.active = data.objects[name]
         ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
         '''
 
-        self.model = data.objects[name]
+        self.model = context.scene.objects[name]
+
+    def add_animation(self, name):
+
+        with suppress_stdout_stderr():
+            import_animation(name)
+
+        context.selected_objects[0].name = name
+
+        self.animations.append(context.scene.objects[name])
