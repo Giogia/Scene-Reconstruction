@@ -1,31 +1,18 @@
-import os
-from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from importlib import reload
-from math import radians
-
 from bpy import context, ops, data
 
 from . import parameters
-
 from .loader import create_directory, import_mesh, import_animation
+from .stdout_utils import suppress_stdout_stderr
 
 reload(parameters)
-
-
-# remove overloaded output when importing model
-@contextmanager
-def suppress_stdout_stderr():
-    """A context manager that redirects stdout and stderr to devnull"""
-    with open(os.devnull, 'w') as fnull:
-        with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
-            yield err, out
 
 
 class Scene:
 
     def __init__(self, path, name, file_name, reset=False):
 
-        print('Setup model: ' + name + '\n')
+        print('Setup model: ' + name)
         create_directory(path)
         self.animations = []
 

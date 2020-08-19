@@ -50,7 +50,7 @@ def main():
                         scene = Scene(path, name, file_name, reset=False)
                         camera = Camera()
                         renderer = Renderer()
-                        renderer.retarget(scene.model, scene.animations[1])
+                        renderer.retarget(scene.model, scene.animations[0])
                         renderer.render(camera, scene.model, path, update_views=False)
 
 

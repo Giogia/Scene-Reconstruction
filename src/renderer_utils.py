@@ -7,6 +7,7 @@ from bpy import context, data, ops
 
 from . import parameters
 from .loader import export_view, export_matrix, export_model_parameters, create_directory
+from .stdout_utils import suppress_stdout_stderr
 
 reload(parameters)
 
@@ -111,9 +112,12 @@ class Renderer:
 
     def retarget(self, model, animation):
 
-        self.scene.rsl_retargeting_armature_source = animation
-        self.scene.rsl_retargeting_armature_target = model
+        with suppress_stdout_stderr():
+            self.scene.rsl_retargeting_armature_source = animation
+            self.scene.rsl_retargeting_armature_target = model
 
-        ops.rsl.build_bone_list()
-        ops.rsl.retarget_animation()
+            ops.rsl.build_bone_list()
+            ops.rsl.retarget_animation()
+
+        print('Retargeted ' + animation.name + ' animation')
 
