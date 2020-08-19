@@ -5,16 +5,16 @@ from pathlib import Path
 
 from bpy import data
 
-from . import scene, camera, renderer, parameters
+from . import scene_utils, camera_utils, renderer_utils, parameters
 
-reload(scene)
-reload(camera)
-reload(renderer)
+reload(scene_utils)
+reload(camera_utils)
+reload(renderer_utils)
 reload(parameters)
 
-from .scene import Scene
-from .camera import Camera
-from .renderer import Renderer
+from .scene_utils import Scene
+from .camera_utils import Camera
+from .renderer_utils import Renderer
 
 # PATH TO REPOSITORY
 PATH = Path(data.filepath).parent
@@ -47,12 +47,11 @@ def main():
                                                             'Neural-Volumes', 'experiments', name, 'data'))
 
                         # Render
-                        scene = Scene(path, name, file_name, reset=True)
-                        model = scene.model
+                        scene = Scene(path, name, file_name, reset=False)
                         camera = Camera()
                         renderer = Renderer()
-                        renderer.retarget(model, scene.animations[0])
-                        renderer.render(camera, model, path, update_views=False)
+                        renderer.retarget(scene.model, scene.animations[1])
+                        renderer.render(camera, scene.model, path, update_views=False)
 
 
 

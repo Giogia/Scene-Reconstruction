@@ -84,7 +84,7 @@ class Scene:
         ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
         '''
 
-        self.model = context.scene.objects[name]
+        self.model = data.objects[name]
 
     def add_animation(self, name):
 
@@ -93,4 +93,4 @@ class Scene:
 
         context.selected_objects[0].name = name
 
-        self.animations.append(context.scene.objects[name])
+        self.animations.append(data.objects[name])
