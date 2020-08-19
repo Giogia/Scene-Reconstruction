@@ -10,10 +10,9 @@ reload(parameters)
 
 class Scene:
 
-    def __init__(self, path, name, file_name, reset=False):
+    def __init__(self, name, file_name, reset=False):
 
         print('Setup model: ' + name)
-        create_directory(path)
         self.animations = []
 
         if reset:

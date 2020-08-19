@@ -43,15 +43,19 @@ def main():
                     else:
                         name = [name for name in parameters.MODELS if name.lower() in file_name][0]
 
-                        path = os.path.abspath(os.path.join(PATH, os.pardir,
-                                                            'Neural-Volumes', 'experiments', name, 'data'))
-
                         # Render
-                        scene = Scene(path, name, file_name, reset=False)
+                        scene = Scene(name, file_name, reset=False)
                         camera = Camera()
                         renderer = Renderer()
-                        renderer.retarget(scene.model, scene.animations[0])
-                        renderer.render(camera, scene.model, path, update_views=False)
+                        
+                        model = scene.model
+
+                        for animation in scene.animations:
+
+                            path = os.path.abspath(os.path.join(PATH, os.pardir,
+                                                                'Neural-Volumes', 'experiments', name, 'data', animation.name))
+                            renderer.retarget(model, animation)
+                            renderer.render(camera, model, path, update_views=False)
 
 
 

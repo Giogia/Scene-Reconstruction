@@ -59,6 +59,8 @@ class Renderer:
 
     def render(self, camera, model, path, update_views=True):
 
+        create_directory(path)
+
         self.scene.camera = camera.camera
 
         # export intrinsic parameters
@@ -115,6 +117,9 @@ class Renderer:
         with suppress_stdout_stderr():
             self.scene.rsl_retargeting_armature_source = animation
             self.scene.rsl_retargeting_armature_target = model
+
+            self.scene.rsl_retargeting_auto_scaling = True
+            self.scene.rsl_retargeting_use_pose = 'REST'
 
             ops.rsl.build_bone_list()
             ops.rsl.retarget_animation()
