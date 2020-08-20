@@ -2,7 +2,7 @@ from importlib import reload
 from bpy import context, ops, data
 
 from . import parameters
-from .loader import create_directory, import_mesh, import_animation
+from .loader import import_mesh, import_animation
 from .stdout_utils import suppress_stdout_stderr
 
 reload(parameters)

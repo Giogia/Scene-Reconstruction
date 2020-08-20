@@ -39,7 +39,7 @@ class Camera:
 
     def look_at_model(self, target):
         self.camera.rotation_mode = 'QUATERNION'
-        looking_direction = Vector(self.camera.location) - Vector(target.location)
+        looking_direction = Vector(self.camera.location) - Vector(target.location) - Vector([0, 0, parameters.HEIGHT/2])
         self.camera.rotation_quaternion = looking_direction.to_track_quat('Z', 'Y')
         self.camera.rotation_mode = 'XYZ'
 
