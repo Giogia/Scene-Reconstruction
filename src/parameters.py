@@ -1,6 +1,6 @@
 # MODEL SETTINGS
 MODELS = ['Carla', 'Claudia', 'Eric']
-ANIMATIONS = ['Attack', 'Backbend']
+ANIMATIONS = ['Attack', 'Backbend', 'Backflip', 'Catwalk', 'Cheer', 'Finger Taunt', 'Flying Kick', 'Run', 'Walk']
 EXTENSION = 'fbx'
 POLY_NUMBER = 250
 SCALE = 0.1
@@ -27,3 +27,6 @@ OUTPUT_RESOLUTION = 100  # percentage
 # ANIMATION SETTINGS
 START_FRAME = 1
 END_FRAME = 200
+
+RESET_SCENE = False
+UPDATE_VIEWS = False

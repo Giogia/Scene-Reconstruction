@@ -44,7 +44,7 @@ def main():
                         name = [name for name in parameters.MODELS if name.lower() in file_name][0]
 
                         # Render
-                        scene = Scene(name, file_name, reset=False)
+                        scene = Scene(name, file_name, reset=parameters.RESET_SCENE)
                         camera = Camera()
                         renderer = Renderer()
                         
@@ -55,7 +55,7 @@ def main():
                             path = os.path.abspath(os.path.join(PATH, os.pardir,
                                                                 'Neural-Volumes', 'experiments', name, 'data', animation.name))
                             renderer.retarget(model, animation)
-                            renderer.render(camera, model, path, update_views=False)
+                            renderer.render(camera, model, path, update_views=parameters.UPDATE_VIEWS)
 
 
 

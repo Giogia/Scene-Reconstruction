@@ -63,11 +63,6 @@ class Renderer:
 
         self.scene.camera = camera.camera
 
-        # export intrinsic parameters
-        intrinsic = camera.get_intrinsics_matrix()
-        export_matrix(intrinsic, path, 'camera_intrinsic')
-        export_model_parameters(model, path, 'model')
-
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
 
@@ -85,6 +80,13 @@ class Renderer:
             z = height
 
             camera.move_to((x, y, z), target=model)
+
+            # export camera pose and intrinsic parameters
+            pose_matrix = camera.get_pose_matrix()
+            export_matrix(pose_matrix, os.path.join(path, camera_name), 'pose')
+
+            intrinsic = camera.get_intrinsics_matrix()
+            export_matrix(intrinsic, os.path.join(path, camera_name), 'intrinsic')
 
             if update_views:
                 # export background
@@ -106,10 +108,6 @@ class Renderer:
 
                 for obj in data.objects:
                     obj.hide_render = False
-
-            # export camera pose
-            pose_matrix = camera.get_pose_matrix()
-            export_matrix(pose_matrix, os.path.join(path, camera_name), 'pose')
 
         print('View extraction completed Successfully\n\n')
 

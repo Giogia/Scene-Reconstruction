@@ -27,15 +27,15 @@ def import_mesh(name, file_name):
     model_path = os.path.join(PATH, 'models', name, file_name + '.' + parameters.EXTENSION)
 
     if parameters.EXTENSION == 'fbx':
-        ops.import_scene.fbx(filepath=model_path, ignore_leaf_bones=True)
+        ops.import_scene.fbx(filepath=model_path, ignore_leaf_bones=False)
 
     if parameters.EXTENSION == 'obj':
         ops.import_scene.obj(filepath=model_path, axis_up='Z', axis_forward='Y')
 
 
 def import_animation(name):
-    animation_path = os.path.join(PATH, 'animations', name + '.fbx')
-    ops.import_scene.fbx(filepath=animation_path, ignore_leaf_bones=True)
+    animation_path = os.path.join(PATH, 'animations', name + '.bvh')
+    ops.import_anim.bvh(filepath=animation_path)
 
 
 def export_mesh(model):
