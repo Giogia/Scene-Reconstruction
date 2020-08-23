@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 from bpy import context, ops, data
+from mathutils import Matrix
 
 from . import parameters
 from .csv_utils import csv_setup
@@ -62,16 +63,26 @@ def export_mesh(model):
 
 def export_model_parameters(model, path, name):
 
-    position = model.location
-    rotation = model.rotation_euler
+    location = model.location
+    rotation = model.rotation_quaternion
 
-    position = [position[0], position[2], position[1]]
-    rotation = [rotation[0], rotation[2], rotation[1]]
+    rotation_matrix = rotation.to_matrix().transposed()
+    location_matrix = -1 * rotation_matrix @ location
 
-    location_matrix = translate_matrix(position)
-    rotation_matrix = rotate_matrix(rotation)
+    matrix = Matrix(
+        ((1, 0, 0),
+         (0, -1, 0),
+         (0, 0, -1)))
 
-    matrix = np.matmul(location_matrix, rotation_matrix)
+    location_matrix = matrix @ location_matrix
+    rotation_matrix = matrix @ rotation_matrix
+
+    matrix = Matrix((
+        rotation_matrix[0][:] + (location_matrix[0],),
+        rotation_matrix[1][:] + (location_matrix[1],),
+        rotation_matrix[2][:] + (location_matrix[2],),
+        (0, 0, 0, 1)
+    ))
 
     export_matrix(matrix, path, name)
 

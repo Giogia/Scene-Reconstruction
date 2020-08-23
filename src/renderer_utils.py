@@ -67,8 +67,6 @@ class Renderer:
         intrinsic = camera.get_intrinsics_matrix()
         export_matrix(intrinsic, path, 'camera_intrinsic')
 
-        export_model_parameters(model, path, 'model')
-
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
 
@@ -101,6 +99,8 @@ class Renderer:
                 # export camera views
                 for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
                     self.scene.frame_set(frame)
+                    export_model_parameters(data.objects[model.name].pose.bones["hip"],
+                                            os.path.join(path, camera_name),str(frame))
                     export_view(os.path.join(path, camera_name, str(frame)))
 
                 for obj in data.objects:
