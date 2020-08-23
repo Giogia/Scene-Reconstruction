@@ -66,6 +66,7 @@ class Renderer:
         # export intrinsic parameters
         intrinsic = camera.get_intrinsics_matrix()
         export_matrix(intrinsic, path, 'camera_intrinsic')
+        export_model_parameters(model, path, 'model')
 
         samples = parameters.CAMERAS_NUMBER
         for i in range(samples):
