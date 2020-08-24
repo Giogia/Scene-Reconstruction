@@ -28,6 +28,7 @@ class Scene:
         for animation in parameters.ANIMATIONS:
             try:
                 self.animations.append(context.scene.objects[animation])
+
             except KeyError:
                 print('Added ' + animation + ' animation\n')
                 self.add_animation(animation)
@@ -65,12 +66,9 @@ class Scene:
             import_mesh(name, file_name)
 
         context.selected_objects[0].name = name
-        '''
-        context.view_layer.objects.active = data.objects[name]
-        ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
-        '''
 
         self.model = data.objects[name]
+        self.model.hide_viewport = True
 
     def add_animation(self, name):
 

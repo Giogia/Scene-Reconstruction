@@ -2,13 +2,11 @@ import os
 from importlib import reload
 from pathlib import Path
 
-import numpy as np
 from bpy import context, ops, data
 from mathutils import Matrix
 
 from . import parameters
 from .csv_utils import csv_setup
-from .matrix_utils import rotate_matrix, translate_matrix
 
 reload(parameters)
 
@@ -36,29 +34,6 @@ def import_mesh(name, file_name):
 def import_animation(name):
     animation_path = os.path.join(PATH, 'animations', name + '.bvh')
     ops.import_anim.bvh(filepath=animation_path)
-
-
-def export_mesh(model):
-
-    """ Save model parameters
-    file = open(os.path.join(PATH, 'data', model.name, 'model.csv'), 'w')
-    save_model_parameters(model, file)
-    """
-
-    # Generate Mesh
-    context.view_layer.objects.active = model
-    groundtruth_directory = os.path.join(PATH, 'data', model.name, 'groundtruth')
-
-    if not os.path.exists(groundtruth_directory):
-        os.makedirs(groundtruth_directory)
-
-    filepath = os.path.join(groundtruth_directory, 'groundtruth.' + parameters.EXTENSION)
-
-    if parameters.EXTENSION == 'glb':
-        ops.export_scene.gltf(filepath=filepath , export_draco_mesh_compression_enable=True)
-
-    elif parameters.EXTENSION == 'obj':
-        ops.export_scene.obj(filepath=filepath)
 
 
 def export_model_parameters(model, path, name):

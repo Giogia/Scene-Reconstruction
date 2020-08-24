@@ -85,31 +85,6 @@ class Camera:
 
         return np.reshape(matrix, (3, 3))
 
-    def set_intrinsics_matrix(self, matrix):
-
-        camera = data.cameras['Camera']  # Camera corresponding to Test_Camera or Training_Camera
-
-        scene = context.scene
-
-        scale = scene.render.resolution_percentage / 100
-
-        alpha_u, alpha_v = matrix[0][0], matrix[1][1]
-        u_0, v_0 = matrix[0][2], matrix[1][2]
-
-        camera.sensor_width = alpha_v * u_0 / (alpha_u * v_0)
-        camera.sensor_height = 1
-
-        scene.render.resolution_x = 2 * u_0 / scale
-        scene.render.resolution_y = 2 * v_0 / scale
-
-        pixel_aspect_ratio = alpha_v/alpha_u
-
-        scene.render.pixel_aspect_x = pixel_aspect_ratio * scene.render.pixel_aspect_y
-
-        camera.lens = alpha_u * camera.sensor_width / (scene.render.resolution_x * scale)
-
-        print(camera.lens)
-
     def get_pose_matrix(self):
 
         location = self.camera.location

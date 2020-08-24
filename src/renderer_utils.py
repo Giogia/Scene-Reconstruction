@@ -113,6 +113,9 @@ class Renderer:
 
     def retarget(self, model, animation):
 
+        model.hide_viewport = False
+        animation.hide_viewport = False
+
         with suppress_stdout_stderr():
             self.scene.rsl_retargeting_armature_source = animation
             self.scene.rsl_retargeting_armature_target = model
@@ -122,6 +125,8 @@ class Renderer:
 
             ops.rsl.build_bone_list()
             ops.rsl.retarget_animation()
+
+        animation.hide_viewport = True
 
         print('Retargeted ' + animation.name + ' animation')
 
