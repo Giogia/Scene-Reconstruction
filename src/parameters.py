@@ -1,6 +1,6 @@
 # MODEL SETTINGS
 MODELS = ['Carla', 'Claudia', 'Eric']
-ANIMATIONS = ['Attack', 'Backbend', 'Backflip', 'Catwalk', 'Cheer', 'Finger Taunt', 'Flying Kick', 'Run', 'Walk']
+ANIMATIONS = ['Attack', 'Backbend', 'Backflip', 'Catwalk', 'Cheer', 'Finger Taunt', 'Flying Kick', 'March']
 EXTENSION = 'fbx'
 POLY_NUMBER = 250
 SCALE = 0.1
