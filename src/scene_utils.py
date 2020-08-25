@@ -1,4 +1,5 @@
 from importlib import reload
+
 from bpy import context, ops, data
 
 from . import parameters
@@ -68,7 +69,7 @@ class Scene:
         context.selected_objects[0].name = name
 
         self.model = data.objects[name]
-        self.model.hide_viewport = True
+        # self.model.hide_viewport = True
 
     def add_animation(self, name):
 

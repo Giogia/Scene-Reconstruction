@@ -126,7 +126,7 @@ class Renderer:
             ops.rsl.build_bone_list()
             ops.rsl.retarget_animation()
 
-        animation.hide_viewport = True
+        # animation.hide_viewport = True
 
         print('Retargeted ' + animation.name + ' animation')
 

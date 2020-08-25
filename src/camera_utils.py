@@ -5,9 +5,8 @@ import numpy as np
 from bpy import context, ops, data
 from mathutils import Vector, Matrix
 
-from . import matrix_utils, parameters
+from . import parameters
 
-reload(matrix_utils)
 reload(parameters)
 
 
