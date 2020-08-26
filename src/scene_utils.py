@@ -11,7 +11,7 @@ reload(parameters)
 
 class Scene:
 
-    def __init__(self, name, file_name, reset=False):
+    def __init__(self, name, file_name, reset=parameters.RESET_SCENE):
 
         print('Setup model: ' + name)
         self.animations = []
@@ -69,13 +69,11 @@ class Scene:
         context.selected_objects[0].name = name
 
         self.model = data.objects[name]
-        # self.model.hide_viewport = True
 
     def add_animation(self, name):
 
         with suppress_stdout_stderr():
             import_animation(name)
 
-        context.selected_objects[0].name = name
-
+        # context.selected_objects[0].name = name
         self.animations.append(data.objects[name])

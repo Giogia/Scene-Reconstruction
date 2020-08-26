@@ -15,7 +15,7 @@ class Camera:
     def __init__(self):
 
         try:
-            self.camera = context.scene.objects['Camera']
+            self.camera = data.objects['Camera']
             # print("Camera found in current scene\n")
 
         except KeyError:
@@ -56,7 +56,8 @@ class Camera:
         self.camera.rotation_quaternion = rotation
 
     def get_intrinsics_matrix(self):
-        camera = data.cameras['Camera']  # Camera corresponding to Test_Camera or Training_Camera
+
+        camera = data.cameras[0]  # Camera corresponding to Test_Camera or Training_Camera
 
         scene = context.scene
 

@@ -57,7 +57,7 @@ class Renderer:
         links.new(render_node.outputs['Image'], composite_node.inputs['Image'])
         links.new(render_node.outputs['Depth'], composite_node.inputs['Z'])
 
-    def render(self, camera, model, path, update_views=True):
+    def render(self, camera, model, path, update_views=parameters.UPDATE_VIEWS):
 
         create_directory(path)
 
@@ -125,8 +125,6 @@ class Renderer:
 
             ops.rsl.build_bone_list()
             ops.rsl.retarget_animation()
-
-        # animation.hide_viewport = True
 
         print('Retargeted ' + animation.name + ' animation')
 

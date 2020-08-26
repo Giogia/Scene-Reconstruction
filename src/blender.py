@@ -3,7 +3,7 @@ import sys
 from importlib import reload
 from pathlib import Path
 
-from bpy import data
+from bpy import data, context
 
 from . import scene_utils, camera_utils, renderer_utils, parameters
 
@@ -44,7 +44,7 @@ def main():
                         name = [name for name in parameters.MODELS if name.lower() in file_name][0]
 
                         # Render
-                        scene = Scene(name, file_name, reset=parameters.RESET_SCENE)
+                        scene = Scene(name, file_name)
                         camera = Camera()
                         renderer = Renderer()
                         
@@ -54,8 +54,10 @@ def main():
 
                             path = os.path.abspath(os.path.join(PATH, os.pardir,
                                                                 'Neural-Volumes', 'experiments', name, 'data', animation.name))
+
+                            context.view_layer.objects.active = model
                             renderer.retarget(model, animation)
-                            renderer.render(camera, model, path, update_views=parameters.UPDATE_VIEWS)
+                            renderer.render(camera, model, path)
 
 
 
