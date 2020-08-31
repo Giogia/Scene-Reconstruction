@@ -6,10 +6,12 @@ from random import random
 from bpy import context, data, ops
 
 from . import parameters
+from . import loader
 from .loader import export_view, export_matrix, export_model_parameters, create_directory
 from .stdout_utils import suppress_stdout_stderr
 
 reload(parameters)
+reload(loader)
 
 
 def noise(value):
@@ -103,7 +105,7 @@ class Renderer:
                 for frame in range(self.scene.frame_start, self.scene.frame_end + 1):
                     self.scene.frame_set(frame)
                     export_model_parameters(data.objects[model.name].pose.bones["hip"],
-                                            os.path.join(path, camera_name),str(frame))
+                                            os.path.join(path, camera_name), str(frame))
                     export_view(os.path.join(path, camera_name, str(frame)))
 
                 for obj in data.objects:
