@@ -91,7 +91,7 @@ class Camera:
         rotation = self.camera.rotation_quaternion
 
         rotation_matrix = rotation.to_matrix().transposed()
-        location_matrix = -1 * location  # -1 * rotation_matrix @ location
+        location_matrix = -1 * rotation_matrix @ location
 
         matrix = Matrix(
             ((1, 0, 0),
